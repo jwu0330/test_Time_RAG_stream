@@ -58,7 +58,7 @@ python3 -m venv venv
 source venv/bin/activate
 
 # 3. 安裝依賴
-pip install -r requirements.txt
+
 ```
 
 ### 方式 2：使用 Poetry

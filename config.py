@@ -13,11 +13,11 @@ class Config:
     EMBEDDING_MODEL = "text-embedding-3-small"
     
     # 主要 LLM 模型（用於生成草稿和最終答案）
-    # 選項: "gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o"
-    LLM_MODEL = "gpt-3.5-turbo"
+    # 選項: "gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4o-mini"
+    LLM_MODEL = "gpt-4o-mini"
     
     # 情境分類模型（用於四向度判定）
-    # 選項: "gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"
+    # 選項: "gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o-mini"
     CLASSIFIER_MODEL = "gpt-3.5-turbo"
     
     # ==================== 系統參數 ====================
@@ -70,7 +70,7 @@ class Config:
         "D3": {
             "name": "表達詳細度",
             "description": "這句話的表達是否詳細",
-            "values": ["非常詳細", "粗略", "未談及重點"]
+            "values": ["粗略", "非常詳細"]
         },
         "D4": {
             "name": "重複詢問",

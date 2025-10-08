@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict
 import uvicorn
 
-from main_parallel import ParallelRAGSystem as RAGStreamSystem
+from main_parallel import ParallelRAGSystem
 from config import Config, get_config_summary
 from core.history_manager import HistoryManager
 
@@ -31,7 +31,7 @@ app.add_middleware(
 )
 
 # 全局系統實例
-system: Optional[RAGStreamSystem] = None
+system: Optional[ParallelRAGSystem] = None
 history_manager: Optional[HistoryManager] = None
 
 
@@ -85,7 +85,7 @@ async def startup_event():
     print("="*60)
     
     # 初始化系統
-    system = RAGStreamSystem()
+    system = ParallelRAGSystem()
     history_manager = HistoryManager()
     
     # 初始化文件向量
@@ -148,24 +148,27 @@ async def process_query(request: QueryRequest):
         query = request.query
         
         # 使用 ParallelRAGSystem 的並行處理方法
-        result = await system.process_query_parallel(query)
+        result = await system.process_query(query)
         
         # 提取需要的資訊
         dimensions = result.get("dimensions", {})
         matched_docs = result.get("matched_docs", [])
         final_answer = result.get("final_answer", "抱歉，無法生成回答")
-        scenario = result.get("scenario", "unknown")
+        scenario_number = result.get("scenario_number", 0)
+        scenario_description = result.get("scenario_description", "")
         
         # 計算總時間
         time_report = result.get("time_report", {})
-        total_time = time_report.get("總耗時", 0)
+        total_time = time_report.get("total_time", 0)
         
         # 返回簡化的響應格式（符合前端期望）
         return {
             "answer": final_answer,
             "dimensions": dimensions,
             "matched_docs": matched_docs,
-            "scenario": scenario,
+            "scenario": f"第 {scenario_number} 種情境",
+            "scenario_number": scenario_number,
+            "scenario_description": scenario_description,
             "response_time": total_time
         }
         

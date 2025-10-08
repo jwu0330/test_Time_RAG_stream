@@ -1,0 +1,47 @@
+{
+  "total_scenarios": 24,
+  "dimensions": {
+    "D1": {
+      "name": "知識點數量",
+      "values": ["零個", "一個", "多個"]
+    },
+    "D2": {
+      "name": "表達錯誤",
+      "values": ["有錯誤", "無錯誤"]
+    },
+    "D3": {
+      "name": "表達詳細度",
+      "values": ["粗略", "非常詳細"]
+    },
+    "D4": {
+      "name": "重複詢問",
+      "values": ["重複狀態", "正常狀態"]
+    }
+  },
+  "scenarios": [
+    {"scenario_number": 1, "dimensions": {"D1": "零個", "D2": "有錯誤", "D3": "粗略", "D4": "重複狀態"}, "description": "零個 + 有錯誤 + 粗略 + 重複狀態"},
+    {"scenario_number": 2, "dimensions": {"D1": "零個", "D2": "有錯誤", "D3": "粗略", "D4": "正常狀態"}, "description": "零個 + 有錯誤 + 粗略 + 正常狀態"},
+    {"scenario_number": 3, "dimensions": {"D1": "零個", "D2": "有錯誤", "D3": "非常詳細", "D4": "重複狀態"}, "description": "零個 + 有錯誤 + 非常詳細 + 重複狀態"},
+    {"scenario_number": 4, "dimensions": {"D1": "零個", "D2": "有錯誤", "D3": "非常詳細", "D4": "正常狀態"}, "description": "零個 + 有錯誤 + 非常詳細 + 正常狀態"},
+    {"scenario_number": 5, "dimensions": {"D1": "零個", "D2": "無錯誤", "D3": "粗略", "D4": "重複狀態"}, "description": "零個 + 無錯誤 + 粗略 + 重複狀態"},
+    {"scenario_number": 6, "dimensions": {"D1": "零個", "D2": "無錯誤", "D3": "粗略", "D4": "正常狀態"}, "description": "零個 + 無錯誤 + 粗略 + 正常狀態"},
+    {"scenario_number": 7, "dimensions": {"D1": "零個", "D2": "無錯誤", "D3": "非常詳細", "D4": "重複狀態"}, "description": "零個 + 無錯誤 + 非常詳細 + 重複狀態"},
+    {"scenario_number": 8, "dimensions": {"D1": "零個", "D2": "無錯誤", "D3": "非常詳細", "D4": "正常狀態"}, "description": "零個 + 無錯誤 + 非常詳細 + 正常狀態"},
+    {"scenario_number": 9, "dimensions": {"D1": "一個", "D2": "有錯誤", "D3": "粗略", "D4": "重複狀態"}, "description": "一個 + 有錯誤 + 粗略 + 重複狀態"},
+    {"scenario_number": 10, "dimensions": {"D1": "一個", "D2": "有錯誤", "D3": "粗略", "D4": "正常狀態"}, "description": "一個 + 有錯誤 + 粗略 + 正常狀態"},
+    {"scenario_number": 11, "dimensions": {"D1": "一個", "D2": "有錯誤", "D3": "非常詳細", "D4": "重複狀態"}, "description": "一個 + 有錯誤 + 非常詳細 + 重複狀態"},
+    {"scenario_number": 12, "dimensions": {"D1": "一個", "D2": "有錯誤", "D3": "非常詳細", "D4": "正常狀態"}, "description": "一個 + 有錯誤 + 非常詳細 + 正常狀態"},
+    {"scenario_number": 13, "dimensions": {"D1": "一個", "D2": "無錯誤", "D3": "粗略", "D4": "重複狀態"}, "description": "一個 + 無錯誤 + 粗略 + 重複狀態"},
+    {"scenario_number": 14, "dimensions": {"D1": "一個", "D2": "無錯誤", "D3": "粗略", "D4": "正常狀態"}, "description": "一個 + 無錯誤 + 粗略 + 正常狀態"},
+    {"scenario_number": 15, "dimensions": {"D1": "一個", "D2": "無錯誤", "D3": "非常詳細", "D4": "重複狀態"}, "description": "一個 + 無錯誤 + 非常詳細 + 重複狀態"},
+    {"scenario_number": 16, "dimensions": {"D1": "一個", "D2": "無錯誤", "D3": "非常詳細", "D4": "正常狀態"}, "description": "一個 + 無錯誤 + 非常詳細 + 正常狀態"},
+    {"scenario_number": 17, "dimensions": {"D1": "多個", "D2": "有錯誤", "D3": "粗略", "D4": "重複狀態"}, "description": "多個 + 有錯誤 + 粗略 + 重複狀態"},
+    {"scenario_number": 18, "dimensions": {"D1": "多個", "D2": "有錯誤", "D3": "粗略", "D4": "正常狀態"}, "description": "多個 + 有錯誤 + 粗略 + 正常狀態"},
+    {"scenario_number": 19, "dimensions": {"D1": "多個", "D2": "有錯誤", "D3": "非常詳細", "D4": "重複狀態"}, "description": "多個 + 有錯誤 + 非常詳細 + 重複狀態"},
+    {"scenario_number": 20, "dimensions": {"D1": "多個", "D2": "有錯誤", "D3": "非常詳細", "D4": "正常狀態"}, "description": "多個 + 有錯誤 + 非常詳細 + 正常狀態"},
+    {"scenario_number": 21, "dimensions": {"D1": "多個", "D2": "無錯誤", "D3": "粗略", "D4": "重複狀態"}, "description": "多個 + 無錯誤 + 粗略 + 重複狀態"},
+    {"scenario_number": 22, "dimensions": {"D1": "多個", "D2": "無錯誤", "D3": "粗略", "D4": "正常狀態"}, "description": "多個 + 無錯誤 + 粗略 + 正常狀態"},
+    {"scenario_number": 23, "dimensions": {"D1": "多個", "D2": "無錯誤", "D3": "非常詳細", "D4": "重複狀態"}, "description": "多個 + 無錯誤 + 非常詳細 + 重複狀態"},
+    {"scenario_number": 24, "dimensions": {"D1": "多個", "D2": "無錯誤", "D3": "非常詳細", "D4": "正常狀態"}, "description": "多個 + 無錯誤 + 非常詳細 + 正常狀態"}
+  ]
+}
