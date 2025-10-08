@@ -49,10 +49,10 @@ class Config:
     RESULTS_DIR = "results"
     
     # 文件目錄
-    DOCS_DIR = "docs"
+    DOCS_DIR = "data/docs"
     
     # 情境目錄
-    SCENARIOS_DIR = "scenarios"
+    SCENARIOS_DIR = "data/scenarios"
     
     # ==================== 四向度定義 ====================
     

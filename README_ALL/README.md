@@ -9,7 +9,6 @@
 ⚠️ **文件組織規則**：
 - 📝 **所有說明文件** → `README_ALL/` 目錄
 - 🔧 **所有 .sh 腳本** → `README_ALL/BASH_ALL/` 目錄
-- 🌐 **所有 Web 文件** → `web/` 目錄
 - 💻 **核心程式碼** → 根目錄或 `core/`, `scripts/` 等目錄
 
 ---
@@ -25,10 +24,6 @@ export OPENAI_API_KEY="your-api-key-here"
 
 # 3. 運行測試
 python3 scripts/run_test.py
-
-# 4. 或啟動 Web 界面
-python3 web_api.py
-open web/index.html
 ```
 
 ---
@@ -56,11 +51,6 @@ test_Time_RAG_stream/
 │   ├── scenarios/         # 24 種情境配置
 │   └── knowledge_relations.json
 │
-├── web/                    # 🌐 Web 界面
-│   ├── index.html         # 主界面
-│   ├── app.js             # JavaScript
-│   └── README.md          # Web 使用說明
-│
 ├── tests/                  # 測試文件
 │   ├── test_system.py
 │   └── test_d4_logic.py
@@ -74,12 +64,9 @@ test_Time_RAG_stream/
     ├── README_FULL.md
     ├── EXECUTION_GUIDE.md
     ├── GIT_SYNC.md
-    ├── WEB_INTERFACE_GUIDE.md
-    ├── STARTUP_ANALYSIS.md
-    ├── COMPLETE_CHECK.md
+    ├── ARCHITECTURE_CHECK.md
     └── BASH_ALL/           # 🔧 所有 .sh 腳本
-        ├── SYNC_NOW.sh
-        └── install_deps.sh
+        └── SYNC_NOW.sh
 ```
 
 ---
@@ -89,7 +76,7 @@ test_Time_RAG_stream/
 - ✅ **四向度分類**: D1(知識點數量)、D2(表達錯誤)、D3(表達詳細度)、D4(重複詢問)
 - ✅ **24 種情境**: 自動匹配並調整回答策略
 - ✅ **並行處理**: 多線程分析，提升效率
-- ✅ **Web 界面**: 互動式聊天界面
+- ✅ **Web 界面**: 可選的圖形化界面
 
 ---
 
@@ -114,39 +101,13 @@ python3 scripts/scenario_generator.py
 
 ---
 
-## 🌐 Web 界面
-
-### 啟動方式
-
-```bash
-# 1. 啟動後端
-python3 web_api.py
-
-# 2. 打開界面
-open web/index.html
-```
-
-### 功能特色
-
-- 💬 即時對話
-- 📊 四向度顯示
-- ⏱️ 響應時間統計
-- 💡 範例問題
-- 📱 響應式設計
-
-詳細說明：`web/README.md`
-
----
-
 ## 📖 詳細文檔
 
 - **快速開始**: [README_ALL/README_SIMPLE.md](README_ALL/README_SIMPLE.md)
 - **完整文檔**: [README_ALL/README_FULL.md](README_ALL/README_FULL.md)
 - **執行指南**: [README_ALL/EXECUTION_GUIDE.md](README_ALL/EXECUTION_GUIDE.md)
 - **Git 同步**: [README_ALL/GIT_SYNC.md](README_ALL/GIT_SYNC.md)
-- **Web 界面**: [README_ALL/WEB_INTERFACE_GUIDE.md](README_ALL/WEB_INTERFACE_GUIDE.md)
-- **啟動分析**: [README_ALL/STARTUP_ANALYSIS.md](README_ALL/STARTUP_ANALYSIS.md)
-- **完整檢查**: [README_ALL/COMPLETE_CHECK.md](README_ALL/COMPLETE_CHECK.md)
+- **架構檢查**: [README_ALL/ARCHITECTURE_CHECK.md](README_ALL/ARCHITECTURE_CHECK.md)
 
 ---
 
@@ -166,10 +127,6 @@ sudo apt install python3-pip
 
 # 安裝依賴
 pip3 install --user -r requirements.txt
-
-# 或使用安裝腳本
-chmod +x README_ALL/BASH_ALL/install_deps.sh
-./README_ALL/BASH_ALL/install_deps.sh
 ```
 
 ---
@@ -182,6 +139,18 @@ chmod +x README_ALL/BASH_ALL/install_deps.sh
 - 歷史記錄大小
 - RAG 參數
 - 知識點映射
+
+---
+
+## 🌐 Web 界面
+
+```bash
+# 啟動後端
+python3 web_api.py
+
+# 在瀏覽器打開
+open web_interface.html
+```
 
 ---
 

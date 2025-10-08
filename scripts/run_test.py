@@ -5,6 +5,11 @@
 import asyncio
 import json
 import os
+import sys
+
+# 添加父目錄到路徑，以便導入 main_parallel
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from main_parallel import ParallelRAGSystem
 
 

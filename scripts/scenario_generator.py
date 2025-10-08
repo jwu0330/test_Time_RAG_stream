@@ -4,7 +4,12 @@
 """
 import json
 import os
+import sys
 from typing import Dict, List
+
+# 添加父目錄到路徑
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from config import Config
 
 

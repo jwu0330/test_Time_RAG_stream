@@ -1,0 +1,57 @@
+{
+  "history": [
+    {
+      "query": "什麼是機器學習？",
+      "matched_docs": [
+        "ml_basics.txt",
+        "deep_learning.txt",
+        "nlp_intro.txt"
+      ],
+      "knowledge_points": [
+        "機器學習基礎",
+        "深度學習",
+        "自然語言處理"
+      ],
+      "dimensions": {
+        "D1": "多個",
+        "D2": "無錯誤",
+        "D3": "粗略",
+        "D4": "正常狀態"
+      },
+      "timestamp": "2025-10-08T16:08:16.077943"
+    },
+    {
+      "query": "機器學習和深度學習有什麼區別？請詳細說明。",
+      "matched_docs": [
+        "ml_basics.txt",
+        "deep_learning.txt",
+        "nlp_intro.txt"
+      ],
+      "knowledge_points": [
+        "機器學習基礎",
+        "深度學習",
+        "自然語言處理"
+      ],
+      "dimensions": {
+        "D1": "多個",
+        "D2": "無錯誤",
+        "D3": "非常詳細",
+        "D4": "正常狀態"
+      },
+      "timestamp": "2025-10-08T16:08:24.168892"
+    }
+  ],
+  "knowledge_point_counter": {
+    "機器學習基礎": 2,
+    "深度學習": 2,
+    "自然語言處理": 2
+  },
+  "consecutive_access": [
+    "機器學習基礎",
+    "深度學習",
+    "自然語言處理",
+    "機器學習基礎",
+    "深度學習",
+    "自然語言處理"
+  ]
+}

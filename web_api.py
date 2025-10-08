@@ -10,9 +10,9 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict
 import uvicorn
 
-from main import RAGStreamSystem
+from main_parallel import ParallelRAGSystem as RAGStreamSystem
 from config import Config, get_config_summary
-from history_manager import HistoryManager
+from core.history_manager import HistoryManager
 
 # 創建 FastAPI 應用
 app = FastAPI(
@@ -88,12 +88,9 @@ async def startup_event():
     system = RAGStreamSystem()
     history_manager = HistoryManager()
     
-    # 初始化文件和情境
+    # 初始化文件向量
     print("\n📚 初始化文件向量...")
-    await system.initialize_documents(Config.DOCS_DIR)
-    
-    print("\n🎭 載入情境...")
-    await system.load_scenarios(Config.SCENARIOS_DIR)
+    await system.initialize_documents()
     
     print("\n✅ 系統初始化完成！")
     print(f"📡 API 服務運行於: http://{Config.API_HOST}:{Config.API_PORT}")
@@ -138,43 +135,44 @@ async def health_check():
     }
 
 
-@app.post("/api/query", response_model=QueryResponse)
+@app.post("/api/query")
 async def process_query(request: QueryRequest):
     """
-    處理查詢請求
-    
-    所有計時在後端進行，返回精準的處理時間
+    處理查詢請求 - 簡化版本用於 Web 界面
     """
     if system is None:
         raise HTTPException(status_code=503, detail="系統未初始化")
     
     try:
-        # 後端處理（包含所有計時）
-        result = await system.process_query(
-            query=request.query,
-            scenario_ids=request.scenario_ids,
-            auto_classify=request.auto_classify
-        )
+        # 簡化的查詢處理
+        query = request.query
         
-        # 獲取歷史摘要
-        history_summary = history_manager.get_summary() if history_manager else {}
+        # 使用 ParallelRAGSystem 的並行處理方法
+        result = await system.process_query_parallel(query)
         
-        # 構建響應
-        response = QueryResponse(
-            query=result["query"],
-            final_answer=result["final_answer"],
-            scenario_used=result.get("scenario_used", "無"),
-            matched_docs=result.get("matched_docs", []),
-            knowledge_points=result.get("knowledge_points", []),
-            dimensions=result.get("dimensions", {}),
-            dimension_details=result.get("dimension_details", {}),
-            time_report=result["time_report"],
-            history_summary=history_summary
-        )
+        # 提取需要的資訊
+        dimensions = result.get("dimensions", {})
+        matched_docs = result.get("matched_docs", [])
+        final_answer = result.get("final_answer", "抱歉，無法生成回答")
+        scenario = result.get("scenario", "unknown")
         
-        return response
+        # 計算總時間
+        time_report = result.get("time_report", {})
+        total_time = time_report.get("總耗時", 0)
+        
+        # 返回簡化的響應格式（符合前端期望）
+        return {
+            "answer": final_answer,
+            "dimensions": dimensions,
+            "matched_docs": matched_docs,
+            "scenario": scenario,
+            "response_time": total_time
+        }
         
     except Exception as e:
+        import traceback
+        error_detail = traceback.format_exc()
+        print(f"❌ API 錯誤:\n{error_detail}")
         raise HTTPException(status_code=500, detail=f"處理查詢時發生錯誤: {str(e)}")
 
 

@@ -14,11 +14,11 @@ async def test_imports():
     print("-" * 50)
     
     try:
-        from vector_store import VectorStore, cosine_similarity
-        from rag_module import RAGRetriever, RAGCache
-        from scenario_module import ScenarioClassifier, ScenarioInjector
-        from timer_utils import Timer, TimerRecord, TimerReport
-        from main import RAGStreamSystem
+        from core.vector_store import VectorStore, cosine_similarity
+        from core.rag_module import RAGRetriever, RAGCache
+        from core.scenario_module import DimensionClassifier, ScenarioInjector
+        from core.timer_utils import Timer, TimerRecord, TimerReport
+        from main_parallel import ParallelRAGSystem
         
         print("✅ 所有模組導入成功")
         return True
@@ -33,7 +33,7 @@ async def test_timer():
     print("-" * 50)
     
     try:
-        from timer_utils import Timer
+        from core.timer_utils import Timer
         
         timer = Timer()
         
@@ -131,7 +131,7 @@ async def test_rag_cache():
     print("-" * 50)
     
     try:
-        from rag_module import RAGCache
+        from core.rag_module import RAGCache
         
         cache = RAGCache(max_size=10)
         
@@ -176,7 +176,7 @@ async def test_scenario_loading():
         return None
     
     try:
-        from scenario_module import ScenarioClassifier
+        from core.scenario_module import DimensionClassifier
         
         classifier = ScenarioClassifier()
         

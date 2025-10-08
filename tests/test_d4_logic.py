@@ -3,8 +3,8 @@
 驗證 AI 是否能正確判斷重複狀態
 """
 import asyncio
-from scenario_module import DimensionClassifier
-from history_manager import HistoryManager
+from core.scenario_module import DimensionClassifier
+from core.history_manager import HistoryManager
 
 
 async def test_d4_repetition():

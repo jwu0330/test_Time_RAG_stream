@@ -8,7 +8,7 @@ import os
 from typing import Dict, List, Optional
 from openai import OpenAI
 from config import Config
-from history_manager import HistoryManager
+from .history_manager import HistoryManager
 
 
 class DimensionClassifier:

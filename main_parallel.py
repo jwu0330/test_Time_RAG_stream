@@ -9,11 +9,11 @@ from datetime import datetime
 from typing import Dict, List, Optional
 from openai import OpenAI
 
-from vector_store import VectorStore
-from rag_module import RAGRetriever, RAGCache
-from scenario_module import DimensionClassifier
-from scenario_matcher import ScenarioMatcher
-from timer_utils import Timer
+from core.vector_store import VectorStore
+from core.rag_module import RAGRetriever, RAGCache
+from core.scenario_module import DimensionClassifier
+from core.scenario_matcher import ScenarioMatcher
+from core.timer_utils import Timer
 from config import Config
 
 
@@ -51,14 +51,18 @@ class ParallelRAGSystem:
         """
         docs_dir = docs_dir or Config.DOCS_DIR
         
-        print(f"\n📚 開始向量化文件...")
+        print(f"\n📚 初始化文件向量...")
         self.timer.start_stage("向量化")
         
         # 檢查是否已有向量文件
         if self.vector_store.load():
             self.timer.stop_stage("向量化")
-            print("✅ 使用已儲存的向量")
+            print("✅ 使用已儲存的向量（快速啟動）")
             return
+        
+        # 第一次啟動，需要向量化
+        print("⚠️  首次啟動，需要調用 OpenAI API 生成向量")
+        print("⏳ 預計需要 10-15 秒，請稍候...")
         
         # 讀取並向量化文件
         if not os.path.exists(docs_dir):

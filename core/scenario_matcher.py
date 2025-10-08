@@ -10,7 +10,7 @@ from typing import Dict, Optional, List
 class ScenarioMatcher:
     """情境匹配器 - 根據四向度快速找到對應情境"""
     
-    def __init__(self, scenarios_dir: str = "scenarios_24"):
+    def __init__(self, scenarios_dir: str = "data/scenarios"):
         """
         初始化匹配器
         
