@@ -279,7 +279,7 @@ class ParallelRAGSystem:
             "dimension_details": self.dimension_classifier.get_dimension_details(dimensions),
             "matched_docs": rag_result['matched_docs'],
             "knowledge_points": rag_result['knowledge_points'],
-            "time_report": self.timer.get_report()
+            "time_report": self.timer.get_report().to_dict()
         }
         
         return result
