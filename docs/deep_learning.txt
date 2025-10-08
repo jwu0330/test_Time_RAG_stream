@@ -1,0 +1,75 @@
+深度學習進階指南
+
+深度學習 (Deep Learning) 是機器學習的子領域，使用多層神經網絡處理複雜數據。它在圖像、語音和自然語言處理等領域取得了突破性進展。
+
+神經網絡架構：
+
+1. 卷積神經網絡 (CNN)
+   - 專門用於處理圖像數據
+   - 核心組件：卷積層、池化層、全連接層
+   - 經典架構：LeNet、AlexNet、VGG、ResNet、Inception
+   - 應用：圖像分類、目標檢測、圖像分割
+
+2. 循環神經網絡 (RNN)
+   - 處理序列數據
+   - 變體：LSTM、GRU
+   - 應用：語言模型、機器翻譯、時間序列預測
+   - 挑戰：梯度消失、梯度爆炸
+
+3. Transformer 架構
+   - 基於注意力機制
+   - 核心：自注意力 (Self-Attention)
+   - 代表模型：BERT、GPT、T5
+   - 優勢：並行處理、長距離依賴
+
+訓練技巧：
+
+1. 優化算法
+   - SGD (隨機梯度下降)
+   - Adam、AdaGrad、RMSprop
+   - 學習率調度：學習率衰減、Warm-up
+
+2. 正則化技術
+   - Dropout：隨機丟棄神經元
+   - Batch Normalization：批次標準化
+   - L1/L2 正則化
+   - Data Augmentation：數據增強
+
+3. 初始化策略
+   - Xavier 初始化
+   - He 初始化
+   - 預訓練模型 (Transfer Learning)
+
+模型優化：
+
+1. 減少計算成本
+   - 模型剪枝 (Pruning)
+   - 知識蒸餾 (Knowledge Distillation)
+   - 量化 (Quantization)
+   - 混合精度訓練
+
+2. 加速訓練
+   - 分散式訓練
+   - 梯度累積
+   - 混合精度訓練 (FP16)
+   - GPU/TPU 優化
+
+3. 提升性能
+   - 集成學習 (Ensemble)
+   - 超參數搜索
+   - 架構搜索 (NAS)
+
+常見挑戰：
+
+- 數據不足：使用遷移學習、數據增強
+- 過擬合：正則化、Dropout、Early Stopping
+- 訓練不穩定：Batch Normalization、梯度裁剪
+- 計算資源限制：模型壓縮、分散式訓練
+
+實用工具與框架：
+
+- PyTorch：靈活的研究框架
+- TensorFlow：生產級部署
+- Keras：高層API
+- JAX：高性能計算
+- Hugging Face：預訓練模型庫

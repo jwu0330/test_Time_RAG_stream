@@ -1,0 +1,99 @@
+自然語言處理入門
+
+自然語言處理 (Natural Language Processing, NLP) 是讓計算機理解、解釋和生成人類語言的技術領域。
+
+核心任務：
+
+1. 文本分類 (Text Classification)
+   - 情感分析：判斷文本情感傾向
+   - 主題分類：將文本歸類到預定義類別
+   - 垃圾郵件檢測
+   - 意圖識別
+
+2. 命名實體識別 (Named Entity Recognition, NER)
+   - 識別人名、地名、組織名
+   - 時間、日期提取
+   - 應用：信息提取、知識圖譜構建
+
+3. 機器翻譯 (Machine Translation)
+   - 統計機器翻譯 (SMT)
+   - 神經機器翻譯 (NMT)
+   - 代表系統：Google Translate、DeepL
+
+4. 問答系統 (Question Answering)
+   - 閱讀理解
+   - 開放域問答
+   - 知識庫問答
+   - 代表模型：BERT-QA、GPT-based QA
+
+5. 文本生成 (Text Generation)
+   - 摘要生成
+   - 對話系統
+   - 創意寫作
+   - 代碼生成
+
+基礎技術：
+
+1. 文本預處理
+   - 分詞 (Tokenization)
+   - 詞幹提取 (Stemming)
+   - 詞形還原 (Lemmatization)
+   - 停用詞移除
+
+2. 文本表示
+   - Bag of Words (BoW)
+   - TF-IDF
+   - Word2Vec、GloVe
+   - BERT Embeddings
+
+3. 語言模型
+   - N-gram 模型
+   - RNN 語言模型
+   - Transformer 語言模型
+
+預訓練模型：
+
+1. BERT (Bidirectional Encoder Representations from Transformers)
+   - 雙向編碼器
+   - 預訓練任務：MLM、NSP
+   - 變體：RoBERTa、ALBERT、DistilBERT
+
+2. GPT (Generative Pre-trained Transformer)
+   - 自回歸語言模型
+   - 單向解碼器
+   - 版本：GPT-2、GPT-3、GPT-4
+
+3. T5 (Text-to-Text Transfer Transformer)
+   - 統一的文本到文本框架
+   - 所有任務都轉換為文本生成
+
+4. 其他模型
+   - XLNet：排列語言建模
+   - ELECTRA：判別式預訓練
+   - DeBERTa：解耦注意力
+
+實用工具：
+
+- spaCy：工業級 NLP 庫
+- NLTK：教學與研究
+- Hugging Face Transformers：預訓練模型
+- Stanford CoreNLP：多語言支持
+- Gensim：主題建模
+
+應用場景：
+
+- 智能客服：自動回答客戶問題
+- 內容審核：識別不當內容
+- 文檔分析：自動提取關鍵信息
+- 語音助手：Siri、Alexa、Google Assistant
+- 搜索引擎：理解查詢意圖
+- 社交媒體分析：情感監測、趨勢分析
+
+挑戰與未來：
+
+- 多語言理解
+- 常識推理
+- 可解釋性
+- 偏見與公平性
+- 低資源語言
+- 實時處理

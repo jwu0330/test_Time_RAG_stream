@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG 流式系統 - Web 界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .query-section {
+            margin-bottom: 30px;
+        }
+
+        .query-section label {
+            display: block;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .query-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .query-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: 600;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .answer-text {
+            line-height: 1.8;
+            color: #333;
+            white-space: pre-wrap;
+        }
+
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .dimension-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .dimension-item .label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .dimension-item .value {
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .time-report {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .time-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .time-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .time-label {
+            color: #666;
+        }
+
+        .time-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .knowledge-points {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .kp-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 RAG 流式系統</h1>
+            <p>支援向量儲存、流式中斷與續寫的智能問答系統</p>
+        </div>
+
+        <div class="main-content">
+            <div class="query-section">
+                <label for="queryInput">請輸入您的問題：</label>
+                <textarea 
+                    id="queryInput" 
+                    class="query-input" 
+                    placeholder="例如：什麼是機器學習？深度學習有哪些優化技巧？"
+                ></textarea>
+            </div>
+
+            <button id="submitBtn" class="submit-btn" onclick="submitQuery()">
+                提交查詢
+            </button>
+
+            <div id="loading" class="loading">
+                <p>⏳ 處理中，請稍候...</p>
+                <p style="font-size: 0.9em; color: #999; margin-top: 10px;">
+                    系統正在進行 RAG 檢索、情境分類和答案生成
+                </p>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <div id="results" class="results">
+                <div class="result-card">
+                    <h3>📝 最終答案</h3>
+                    <div id="finalAnswer" class="answer-text"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3>🎯 四向度分析</h3>
+                    <div id="dimensions" class="dimensions-grid"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3>📚 匹配的知識點</h3>
+                    <div id="knowledgePoints" class="knowledge-points"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3>⏱️ 時間分析報告（後端實際運作時間）</h3>
+                    <div id="timeReport" class="time-report"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+
+        async function submitQuery() {
+            const queryInput = document.getElementById('queryInput');
+            const query = queryInput.value.trim();
+
+            if (!query) {
+                showError('請輸入問題');
+                return;
+            }
+
+            // 顯示載入狀態
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('errorMessage').classList.remove('active');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        auto_classify: true
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+
+            } catch (error) {
+                showError(`發生錯誤: ${error.message}`);
+            } finally {
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+
+        function displayResults(data) {
+            // 顯示最終答案
+            document.getElementById('finalAnswer').textContent = data.final_answer;
+
+            // 顯示四向度
+            const dimensionsDiv = document.getElementById('dimensions');
+            dimensionsDiv.innerHTML = '';
+            
+            for (const [dimId, value] of Object.entries(data.dimensions)) {
+                const detail = data.dimension_details[dimId];
+                const dimItem = document.createElement('div');
+                dimItem.className = 'dimension-item';
+                dimItem.innerHTML = `
+                    <div class="label">${dimId}: ${detail.name}</div>
+                    <div class="value">${value}</div>
+                `;
+                dimensionsDiv.appendChild(dimItem);
+            }
+
+            // 顯示知識點
+            const kpDiv = document.getElementById('knowledgePoints');
+            kpDiv.innerHTML = '';
+            
+            if (data.knowledge_points && data.knowledge_points.length > 0) {
+                data.knowledge_points.forEach(kp => {
+                    const badge = document.createElement('span');
+                    badge.className = 'kp-badge';
+                    badge.textContent = kp;
+                    kpDiv.appendChild(badge);
+                });
+            } else {
+                kpDiv.innerHTML = '<p style="color: #999;">未匹配到特定知識點</p>';
+            }
+
+            // 顯示時間報告
+            const timeDiv = document.getElementById('timeReport');
+            timeDiv.innerHTML = '';
+            
+            const stages = data.time_report.stages;
+            for (const [stage, duration] of Object.entries(stages)) {
+                const timeItem = document.createElement('div');
+                timeItem.className = 'time-item';
+                timeItem.innerHTML = `
+                    <span class="time-label">${stage}</span>
+                    <span class="time-value">${duration.toFixed(3)}s</span>
+                `;
+                timeDiv.appendChild(timeItem);
+            }
+
+            // 總計
+            const totalItem = document.createElement('div');
+            totalItem.className = 'time-item';
+            totalItem.innerHTML = `
+                <span class="time-label">總計</span>
+                <span class="time-value">${data.time_report.total_time.toFixed(3)}s</span>
+            `;
+            timeDiv.appendChild(totalItem);
+
+            // 顯示結果區域
+            document.getElementById('results').classList.add('active');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('active');
+        }
+
+        // 支援 Enter 鍵提交（Ctrl+Enter）
+        document.getElementById('queryInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                submitQuery();
+            }
+        });
+    </script>
+</body>
+</html>

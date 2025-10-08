@@ -1,0 +1,137 @@
+{
+  "knowledge_points": {
+    "ml_basics": {
+      "id": "ml_basics",
+      "name": "機器學習基礎",
+      "file": "ml_basics.txt",
+      "description": "機器學習的基本概念、算法和應用",
+      "keywords": ["機器學習", "監督學習", "非監督學習", "特徵工程", "模型訓練"],
+      "level": "基礎"
+    },
+    "deep_learning": {
+      "id": "deep_learning",
+      "name": "深度學習",
+      "file": "deep_learning.txt",
+      "description": "神經網絡、深度學習架構和優化技術",
+      "keywords": ["神經網絡", "深度學習", "CNN", "RNN", "反向傳播", "優化器"],
+      "level": "進階"
+    },
+    "nlp": {
+      "id": "nlp",
+      "name": "自然語言處理",
+      "file": "nlp_intro.txt",
+      "description": "文本處理、語言模型和 NLP 應用",
+      "keywords": ["NLP", "文本處理", "詞嵌入", "語言模型", "Transformer"],
+      "level": "進階"
+    }
+  },
+  
+  "relations": {
+    "ml_basics_to_deep_learning": {
+      "from": "ml_basics",
+      "to": "deep_learning",
+      "relation_type": "基礎到進階",
+      "description": "深度學習是機器學習的一個重要分支，建立在機器學習的基本概念之上",
+      "key_connections": [
+        "深度學習使用神經網絡作為模型，這是機器學習中的一種特殊模型",
+        "深度學習的訓練過程（梯度下降、反向傳播）源自機器學習的優化理論",
+        "深度學習處理的問題（分類、回歸）與傳統機器學習相同，但能力更強"
+      ],
+      "differences": [
+        "深度學習自動學習特徵，而傳統機器學習需要手動特徵工程",
+        "深度學習需要更多數據和計算資源",
+        "深度學習模型更複雜，可解釋性較低"
+      ],
+      "when_to_mention": "當用戶同時詢問機器學習和深度學習時，需要說明深度學習是機器學習的延伸和深化"
+    },
+    
+    "ml_basics_to_nlp": {
+      "from": "ml_basics",
+      "to": "nlp",
+      "relation_type": "基礎到應用",
+      "description": "自然語言處理是機器學習在文本和語言領域的具體應用",
+      "key_connections": [
+        "NLP 使用機器學習算法來處理文本數據（如分類、聚類）",
+        "NLP 中的監督學習任務（如情感分析）使用機器學習的分類方法",
+        "NLP 的特徵提取（如 TF-IDF）是機器學習特徵工程的應用"
+      ],
+      "differences": [
+        "NLP 專注於文本和語言數據，而機器學習適用於各種數據類型",
+        "NLP 需要處理語言的特殊性（如語義、語法、上下文）",
+        "NLP 有專門的技術（如詞嵌入、注意力機制）"
+      ],
+      "when_to_mention": "當用戶詢問如何將機器學習應用於文本處理時，需要說明 NLP 是機器學習的應用領域"
+    },
+    
+    "deep_learning_to_nlp": {
+      "from": "deep_learning",
+      "to": "nlp",
+      "relation_type": "技術到應用",
+      "description": "現代 NLP 大量使用深度學習技術，特別是 Transformer 架構",
+      "key_connections": [
+        "NLP 中的語言模型（如 BERT、GPT）基於深度學習的 Transformer 架構",
+        "NLP 使用深度學習的 RNN、LSTM 處理序列數據",
+        "NLP 的詞嵌入（Word2Vec、GloVe）使用深度學習訓練"
+      ],
+      "differences": [
+        "NLP 專注於語言理解和生成，深度學習是更通用的技術",
+        "NLP 需要處理離散的符號（文字），而深度學習通常處理連續數據",
+        "NLP 有特定的預訓練和微調範式"
+      ],
+      "when_to_mention": "當用戶詢問深度學習在 NLP 中的應用，或詢問現代 NLP 技術時，需要說明深度學習是 NLP 的核心技術"
+    },
+    
+    "all_three": {
+      "knowledge_points": ["ml_basics", "deep_learning", "nlp"],
+      "relation_type": "完整技術棧",
+      "description": "從基礎理論到進階技術再到具體應用的完整學習路徑",
+      "hierarchy": {
+        "foundation": "ml_basics",
+        "advanced": "deep_learning",
+        "application": "nlp"
+      },
+      "learning_path": [
+        "1. 先學習機器學習基礎，理解基本概念和算法",
+        "2. 再學習深度學習，掌握神經網絡和深度模型",
+        "3. 最後學習 NLP，將技術應用於語言處理"
+      ],
+      "integration_points": [
+        "機器學習提供理論基礎（損失函數、優化、評估）",
+        "深度學習提供強大模型（神經網絡、Transformer）",
+        "NLP 提供應用場景（文本分類、機器翻譯、問答系統）"
+      ],
+      "when_to_mention": "當用戶詢問完整的學習路徑，或同時涉及三個領域時，需要說明它們的層次關係和學習順序"
+    }
+  },
+  
+  "usage_guide": {
+    "single_knowledge_point": {
+      "description": "當只涉及一個知識點時",
+      "strategy": "專注於該知識點的深入解釋，不需要提及其他知識點"
+    },
+    "two_knowledge_points": {
+      "description": "當涉及兩個知識點時",
+      "strategy": "從 relations 中找到對應的關係，說明兩者的聯繫和區別",
+      "example": "如果涉及 ml_basics 和 deep_learning，使用 ml_basics_to_deep_learning 的內容"
+    },
+    "three_knowledge_points": {
+      "description": "當涉及三個知識點時",
+      "strategy": "使用 all_three 的內容，說明完整的技術棧和學習路徑"
+    },
+    "zero_knowledge_points": {
+      "description": "當沒有匹配到知識點時",
+      "strategy": "引導用戶回到相關主題，或說明問題可能超出當前知識庫範圍"
+    }
+  },
+  
+  "prompt_templates": {
+    "multiple_knowledge_points": {
+      "template": "這個問題涉及多個知識點：{knowledge_points}。讓我說明它們之間的關係：\n\n{relations_description}\n\n{detailed_answer}",
+      "variables": {
+        "knowledge_points": "知識點列表",
+        "relations_description": "從 relations 中提取的關係描述",
+        "detailed_answer": "具體的回答內容"
+      }
+    }
+  }
+}
