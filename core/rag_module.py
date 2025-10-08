@@ -3,7 +3,7 @@ RAG 檢索模組
 負責向量比對和文件檢索
 """
 from typing import List, Dict, Tuple
-from vector_store import VectorStore, cosine_similarity
+from .vector_store import VectorStore, cosine_similarity
 
 
 class RAGRetriever:
