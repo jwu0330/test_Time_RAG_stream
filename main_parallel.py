@@ -1,6 +1,8 @@
 """
-主程序 - 雙線程版本
-實現主線（RAG教材生成）和分支（情境判定）並行處理
+主程序 - 使用 Responses API 的雙回合流程
+實現：
+1. 判定回合：並行執行 RAG 檢索 + Responses API function call（返回情境編號）
+2. 最終回合：告訴 AI 當前情境，結合 RAG + 本體論，生成流式答案
 """
 import asyncio
 import os
@@ -19,8 +21,8 @@ from core.timer_utils import Timer
 from config import Config
 
 
-class ParallelRAGSystem:
-    """雙線程並行處理的 RAG 系統"""
+class ResponsesRAGSystem:
+    """使用 Responses API 的雙回合 RAG 系統"""
     
     def __init__(self, api_key: Optional[str] = None):
         """
@@ -43,7 +45,10 @@ class ParallelRAGSystem:
         # 計時器
         self.timer = Timer()
         
-        print("🚀 雙線程 RAG 系統已初始化")
+        # 將計時器注入到 scenario_classifier
+        self.scenario_classifier.set_timer(self.timer)
+        
+        print("🚀 Responses API 雙回合 RAG 系統已初始化（五個並行分支）")
     
     async def initialize_documents(self, docs_dir: str = None):
         """
@@ -95,15 +100,14 @@ class ParallelRAGSystem:
     
     async def main_thread_rag(self, query: str) -> Dict:
         """
-        主線（Thread A）：RAG 檢索 + 教材生成
+        主線（Thread A）：RAG 檢索（不生成草稿）
         
         Args:
             query: 用戶查詢
             
         Returns:
-            RAG 檢索結果和草稿答案
+            RAG 檢索結果
         """
-        print("【Thread A - 主線】開始 RAG 檢索...")
         self.timer.start_stage("RAG檢索", thread='A')
         
         # RAG 檢索
@@ -119,77 +123,41 @@ class ParallelRAGSystem:
         
         self.timer.stop_stage("RAG檢索", thread='A')
         
-        # 生成草稿答案
-        self.timer.start_stage("草稿生成", thread='A')
-        draft_prompt = f"""
-根據以下教材內容回答問題。
-
-【教材內容】
-{context}
-
-【問題】
-{query}
-
-請提供初步答案：
-"""
-        
-        response = self.client.chat.completions.create(
-            model=Config.LLM_MODEL,
-            messages=[
-                {"role": "system", "content": "你是一個專業的知識助手。"},
-                {"role": "user", "content": draft_prompt}
-            ],
-            temperature=Config.LLM_TEMPERATURE,
-            max_tokens=Config.LLM_MAX_TOKENS
-        )
-        
-        draft_answer = response.choices[0].message.content
-        self.timer.stop_stage("草稿生成", thread='A')
-        
-        print("【Thread A - 主線】RAG 檢索完成")
-        
         return {
-            "draft_answer": draft_answer,
             "context": context,
             "matched_docs": matched_doc_ids,
             "knowledge_points": knowledge_points,
             "retrieved_docs": retrieved_docs
         }
     
-    async def branch_thread_scenario(self, query: str) -> Dict:
+    async def parallel_dimension_classification(self, query: str, matched_docs: List[str]) -> Dict:
         """
-        分支（Thread B）：情境判定
+        並行執行四個向度判定（Thread B, C, D, E）
         
         Args:
             query: 用戶查詢
+            matched_docs: RAG 匹配到的文檔 ID
             
         Returns:
             情境判定結果
         """
-        print("【Thread B - 分支】開始情境判定...")
-        self.timer.start_stage("獲取歷史", thread='B')
+        # 獲取歷史對話（只有 D4 需要）
+        history = self.history_manager.get_recent_history(5)
+        history_list = [h.to_dict() for h in history]
         
-        # 獲取歷史記錄
-        history = self.history_manager.get_recent_history(n=5)
-        self.timer.stop_stage("獲取歷史", thread='B')
-        
-        # 呼叫 API 進行四向度判定
-        self.timer.start_stage("四向度判定", thread='B')
-        result = self.scenario_classifier.classify(query, history=history)
-        self.timer.stop_stage("四向度判定", thread='B')
-        
-        print("【Thread B - 分支】情境判定完成")
+        # 並行執行四個向度判定，傳入 RAG 結果
+        result = await self.scenario_classifier.classify(query, history_list, matched_docs)
         
         return result
     
-    async def merge_and_generate(
+    async def final_round_generate(
         self, 
         rag_result: Dict, 
         scenario_result: Dict, 
         query: str
     ) -> str:
         """
-        會診：合併兩條線的結果並生成最終答案
+        最終回合：簡單告訴 AI 當前情境，結合 RAG + 本體論生成答案
         
         Args:
             rag_result: 主線的 RAG 結果
@@ -199,54 +167,60 @@ class ParallelRAGSystem:
         Returns:
             最終答案
         """
-        print("\n【會診】合併兩條線的結果...")
+        print("\n【最終回合】整合 RAG + 本體論生成答案...")
         
         # 提取結果
-        draft_answer = rag_result['draft_answer']
         context = rag_result['context']
         knowledge_points = rag_result['knowledge_points']
         
         scenario_number = scenario_result['scenario_number']
         dimensions = scenario_result['dimensions']
         
-        # 構建情境說明文字
-        scenario_text = f"現在為第 {scenario_number} 種情境，分別代表 D1={dimensions['D1']}, D2={dimensions['D2']}, D3={dimensions['D3']}, D4={dimensions['D4']}"
+        # 構建情境說明文字（簡單明瞭）
+        scenario_text = f"現在為第 {scenario_number} 種情境，代表 D1={dimensions['D1']}, D2={dimensions['D2']}, D3={dimensions['D3']}, D4={dimensions['D4']}"
         
-        # 載入本體論（作為教材的一部分）
+        # 載入本體論
         ontology_content = self.ontology_manager.get_ontology_content()
         
-        # 構建最終提示詞
+        # 構建最終提示詞（簡化版，不使用複雜模板）
         final_prompt = f"""
-【初步答案】
-{draft_answer}
+請回答以下問題。
 
-【情境資訊】
+【當前情境】
 {scenario_text}
+
+【RAG 檢索到的教材片段】
+{context}
 
 【知識本體論】
 {ontology_content}
 
-【問題】
+【匹配的知識點】
+{', '.join(knowledge_points) if knowledge_points else '無'}
+
+【用戶問題】
 {query}
 
-請根據以上情境資訊和教材內容，調整並生成最終回答。在回答中加入：「{scenario_text}」
+請根據上述資訊生成回答。在回答開頭簡要說明：「{scenario_text}」
+
+**重要：回答限制在 100 字以內。**
 """
         
-        print(f"【會診】情境資訊：{scenario_text}")
+        print(f"【最終回合】情境：{scenario_text}")
         
-        # 生成最終答案
+        # 使用 Responses API 生成最終答案（流式）
         response = self.client.chat.completions.create(
             model=Config.LLM_MODEL,
             messages=[
-                {"role": "system", "content": "你是一個專業的知識助手。"},
+                {"role": "system", "content": "你是專業知識助手。回答限制在 100 字以內。"},
                 {"role": "user", "content": final_prompt}
             ],
             temperature=Config.LLM_TEMPERATURE,
-            max_tokens=Config.LLM_FINAL_MAX_TOKENS,
+            max_tokens=200,  # 100 字約 200 tokens
             stream=True
         )
         
-        print("\n💬 生成最終答案...")
+        print("\n💬 生成最終答案（流式輸出）...")
         print("-" * 60)
         
         final_answer = ""
@@ -262,46 +236,41 @@ class ParallelRAGSystem:
     
     async def process_query(self, query: str) -> Dict:
         """
-        處理查詢（雙線程版本）
+        處理查詢（五個並行分支 + 最終生成）
+        
+        第一回合：並行執行 RAG 檢索 + 四個向度判定（5個分支）
+        第二回合：整合結果，生成最終答案
         
         Args:
             query: 用戶查詢
             
         Returns:
-            完整結果
+            處理結果
         """
-        print("\n" + "="*70)
-        print(f"🔍 處理查詢: {query}")
-        print("="*70)
+        print(f"\n{'='*70}")
+        print(f"📥 收到查詢: {query}")
+        print(f"{'='*70}")
         
-        # 重置計時器
-        self.timer = Timer()
-        self.timer.start_stage("總流程")
+        # 第一回合：真正的並行執行（RAG + 四個向度判定）
+        self.timer.start_stage("並行處理（5個分支）")
         
-        # ============ 雙線程並行處理 ============
-        print("\n🚀 啟動雙線程並行處理...\n")
-        self.timer.start_stage("並行處理（總時間）")
+        # ✅ 真正的並行：同時執行 RAG 和四個向度判定
+        # D4 API 不再依賴 RAG 結果，所以可以完全並行
+        rag_task = self.main_thread_rag(query)
+        scenario_task = self.parallel_dimension_classification(query, None)  # 不傳入 matched_docs
         
-        # 記錄並行開始時間
-        parallel_start = time.perf_counter()
+        # 等待兩者都完成
+        rag_result, scenario_result = await asyncio.gather(rag_task, scenario_task)
         
-        # 同時啟動兩條線
-        main_task = self.main_thread_rag(query)
-        branch_task = self.branch_thread_scenario(query)
+        self.timer.stop_stage("並行處理（5個分支）")
+        print(f"\n✅ 真正的並行完成：RAG + 四個向度判定同時執行\n")
         
-        # 等待兩條線都完成
-        rag_result, scenario_result = await asyncio.gather(main_task, branch_task)
+        # 第二回合：生成答案
+        self.timer.start_stage("最終回合生成")
         
-        parallel_duration = time.perf_counter() - parallel_start
-        self.timer.stop_stage("並行處理（總時間）")
-        print(f"\n✅ 兩條線都已完成（並行耗時: {parallel_duration:.3f}s）\n")
+        final_answer = await self.final_round_generate(rag_result, scenario_result, query)
         
-        # ============ 會診：合併結果 ============
-        self.timer.start_stage("會診合併")
-        
-        final_answer = await self.merge_and_generate(rag_result, scenario_result, query)
-        
-        self.timer.stop_stage("會診合併")
+        self.timer.stop_stage("最終回合生成")
         self.timer.stop_stage("總流程")
         
         # 打印詳細計時報告
@@ -318,7 +287,8 @@ class ParallelRAGSystem:
         self.history_manager.add_query(
             query,
             rag_result['matched_docs'],
-            dimensions_dict
+            dimensions_dict,
+            scenario_result.get('knowledge_binary', '0000')  # 傳入二進制編碼
         )
         
         # ============ 返回結果 ============
@@ -338,50 +308,52 @@ class ParallelRAGSystem:
     def print_summary(self, result: Dict):
         """打印結果摘要"""
         print("\n" + "="*70)
-        print("📊 處理結果摘要")
+        print("📊 Responses API 雙回合處理結果摘要")
         print("="*70)
         print(f"查詢：{result['query']}")
-        print(f"\n情境：第 {result['scenario_number']} 種")
-        print(f"描述：{result['scenario_description']}")
-        print(f"\n四向度：")
+        print(f"\n🎯 情境判定：第 {result['scenario_number']} 種情境")
+        print(f"   描述：{result['scenario_description']}")
+        print(f"\n📐 四向度分析：")
         for dim, value in result['dimensions'].items():
-            print(f"  {dim}: {value}")
-        print(f"\n知識點：{', '.join(result['knowledge_points']) if result['knowledge_points'] else '無'}")
-        print(f"\n時間報告：")
+            print(f"   {dim}: {value}")
+        print(f"\n📚 匹配知識點：{', '.join(result['knowledge_points']) if result['knowledge_points'] else '無'}")
+        print(f"\n⏱️  執行時間分析：")
         time_report = result['time_report']
         
         # 主流程時間
         if 'stages' in time_report:
-            print("  【主流程】")
+            print("  ┌─ 【主流程 - 總體時間】")
             for stage, duration in time_report['stages'].items():
-                print(f"    {stage}: {duration:.3f}s")
+                print(f"  │   {stage:30s}: {duration:6.3f}s")
         
-        # Thread A 時間
+        # Thread A 時間（RAG 檢索）
         if 'thread_a' in time_report:
-            print(f"\n  【{time_report['thread_a']['thread_name']}】")
+            print(f"  ├─ 【{time_report['thread_a']['thread_name']}】")
             for stage, duration in time_report['thread_a']['stages'].items():
-                print(f"    {stage}: {duration:.3f}s")
-            print(f"    小計: {time_report['thread_a']['total_time']:.3f}s")
+                print(f"  │   {stage:30s}: {duration:6.3f}s")
+            print(f"  │   {'─' * 40}")
+            print(f"  │   {'主線小計':30s}: {time_report['thread_a']['total_time']:6.3f}s")
         
-        # Thread B 時間
+        # Thread B 時間（Responses API 情境判定）
         if 'thread_b' in time_report:
-            print(f"\n  【{time_report['thread_b']['thread_name']}】")
+            print(f"  └─ 【{time_report['thread_b']['thread_name']}】")
             for stage, duration in time_report['thread_b']['stages'].items():
-                print(f"    {stage}: {duration:.3f}s")
-            print(f"    小計: {time_report['thread_b']['total_time']:.3f}s")
+                print(f"      {stage:30s}: {duration:6.3f}s")
+            print(f"      {'─' * 40}")
+            print(f"      {'支線小計':30s}: {time_report['thread_b']['total_time']:6.3f}s")
         
-        print(f"\n  總計: {time_report['total_time']:.3f}s")
+        print(f"\n  🎯 總計時間: {time_report['total_time']:.3f}s")
         print("="*70)
 
 
 async def main():
     """主函數"""
     print("\n" + "="*70)
-    print("🚀 雙線程 RAG 系統")
+    print("🚀 Responses API 雙回合 RAG 系統")
     print("="*70)
     
     # 初始化系統
-    system = ParallelRAGSystem()
+    system = ResponsesRAGSystem()
     
     # 初始化文件
     await system.initialize_documents()

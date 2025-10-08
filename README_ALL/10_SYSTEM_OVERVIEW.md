@@ -364,9 +364,9 @@ open web/index.html
 
 - **快速開始**: [01_QUICK_START.md](01_QUICK_START.md)
 - **安裝指南**: [02_INSTALLATION.md](02_INSTALLATION.md)
-- **架構詳解**: [11_ARCHITECTURE.md](11_ARCHITECTURE.md)
 - **計時系統**: [12_DUAL_THREAD_TIMING.md](12_DUAL_THREAD_TIMING.md)
-- **命令參考**: [20_COMMAND_REFERENCE.md](20_COMMAND_REFERENCE.md)
+- **主要說明**: 查看根目錄的 `README.md`
+- **源代碼**: 查看 `core/` 目錄和 `main_parallel.py`
 
 ---
 

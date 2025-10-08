@@ -18,7 +18,8 @@ class Config:
     
     # 情境分類模型（用於四向度判定）
     # 選項: "gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o-mini"
-    CLASSIFIER_MODEL = "gpt-3.5-turbo"
+    # 使用 gpt-4o-mini 獲得更快的響應速度
+    CLASSIFIER_MODEL = "gpt-4o-mini"
     
     # ==================== 系統參數 ====================
     

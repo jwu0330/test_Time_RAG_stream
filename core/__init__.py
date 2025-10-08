@@ -9,7 +9,7 @@ __version__ = "1.0.0"
 from .vector_store import VectorStore, cosine_similarity
 from .rag_module import RAGRetriever, RAGCache
 from .scenario_classifier import ScenarioClassifier
-from .history_manager import HistoryManager, QueryHistory
+from .history_manager import HistoryManager, HistoryRecord
 from .timer_utils import Timer, TimerRecord, TimerReport
 from .ontology_manager import OntologyManager
 
@@ -20,7 +20,7 @@ __all__ = [
     'RAGCache',
     'ScenarioClassifier',
     'HistoryManager',
-    'QueryHistory',
+    'HistoryRecord',
     'Timer',
     'TimerRecord',
     'TimerReport',

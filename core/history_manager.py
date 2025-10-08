@@ -7,25 +7,20 @@ import os
 from datetime import datetime
 from typing import List, Dict, Optional
 from collections import deque, Counter
+
+
+from dataclasses import dataclass
 from config import Config
 
-
-class QueryHistory:
-    """單次查詢歷史記錄"""
-    
-    def __init__(
-        self,
-        query: str,
-        matched_docs: List[str],
-        knowledge_points: List[str],
-        dimensions: Dict[str, str],
-        timestamp: str
-    ):
-        self.query = query
-        self.matched_docs = matched_docs
-        self.knowledge_points = knowledge_points
-        self.dimensions = dimensions
-        self.timestamp = timestamp
+@dataclass
+class HistoryRecord:
+    """歷史記錄數據類"""
+    query: str
+    matched_docs: List[str]
+    knowledge_points: List[str]
+    dimensions: Dict[str, str]
+    timestamp: str
+    knowledge_binary: str = "0000"  # 二進制編碼
     
     def to_dict(self) -> dict:
         """轉換為字典"""
@@ -34,7 +29,8 @@ class QueryHistory:
             "matched_docs": self.matched_docs,
             "knowledge_points": self.knowledge_points,
             "dimensions": self.dimensions,
-            "timestamp": self.timestamp
+            "timestamp": self.timestamp,
+            "knowledge_binary": self.knowledge_binary
         }
     
     @classmethod
@@ -45,7 +41,8 @@ class QueryHistory:
             matched_docs=data["matched_docs"],
             knowledge_points=data["knowledge_points"],
             dimensions=data["dimensions"],
-            timestamp=data["timestamp"]
+            timestamp=data["timestamp"],
+            knowledge_binary=data.get("knowledge_binary", "0000")
         )
 
 
@@ -72,6 +69,9 @@ class HistoryManager:
         # 連續訪問追蹤（用於檢測重複）
         self.consecutive_access: deque = deque(maxlen=10)
         
+        # 二進制歷史紀錄（最多10筆）
+        self.binary_history: deque = deque(maxlen=10)
+        
         # 載入已存在的歷史
         self.load()
     
@@ -79,8 +79,9 @@ class HistoryManager:
         self,
         query: str,
         matched_docs: List[str],
-        dimensions: Dict[str, str]
-    ) -> QueryHistory:
+        dimensions: Dict[str, str],
+        knowledge_binary: str = "0000"
+    ) -> HistoryRecord:
         """
         添加查詢記錄
         
@@ -88,26 +89,32 @@ class HistoryManager:
             query: 查詢內容
             matched_docs: 匹配的文件列表
             dimensions: 四向度判定結果
+            knowledge_binary: 二進制編碼（從 D4 API 獲得）
             
         Returns:
-            查詢歷史記錄
+            HistoryRecord: 創建的歷史記錄
         """
         # 從匹配的文件中提取知識點
         knowledge_points = self._extract_knowledge_points(matched_docs)
         
         # 創建歷史記錄
-        record = QueryHistory(
+        record = HistoryRecord(
             query=query,
             matched_docs=matched_docs,
             knowledge_points=knowledge_points,
             dimensions=dimensions,
-            timestamp=datetime.now().isoformat()
+            timestamp=datetime.now().isoformat(),
+            knowledge_binary=knowledge_binary
         )
         
         # 添加到歷史
         self.history.append(record)
         
-        # 更新知識點計數
+        # 添加到二進制歷史（使用 test_binary_logic 的函數）
+        from test_binary_logic import add_conversation_record
+        add_conversation_record(list(self.binary_history), knowledge_binary)
+        self.binary_history.append(knowledge_binary)
+        
         for kp in knowledge_points:
             self.knowledge_point_counter[kp] += 1
         
@@ -154,7 +161,7 @@ class HistoryManager:
         # 如果最近 N 次都是同一個知識點，則判定為重複
         return all(kp == knowledge_point for kp in recent)
     
-    def get_recent_history(self, n: int = None) -> List[QueryHistory]:
+    def get_recent_history(self, n: int = None) -> List[HistoryRecord]:
         """
         獲取最近的 N 條歷史記錄
         
@@ -202,14 +209,17 @@ class HistoryManager:
         self.history.clear()
         self.knowledge_point_counter.clear()
         self.consecutive_access.clear()
+        self.binary_history.clear()  # 清空二進制歷史
         self.save()
+        print("✅ 歷史記錄已完全清除")
     
     def save(self):
         """儲存歷史記錄到文件"""
         data = {
             "history": [record.to_dict() for record in self.history],
             "knowledge_point_counter": dict(self.knowledge_point_counter),
-            "consecutive_access": list(self.consecutive_access)
+            "consecutive_access": list(self.consecutive_access),
+            "binary_history": list(self.binary_history)  # 儲存二進制歷史
         }
         
         with open(self.storage_path, 'w', encoding='utf-8') as f:
@@ -231,7 +241,7 @@ class HistoryManager:
             
             # 載入歷史記錄
             self.history = deque(
-                [QueryHistory.from_dict(record) for record in data.get("history", [])],
+                [HistoryRecord.from_dict(record) for record in data.get("history", [])],
                 maxlen=self.max_size
             )
             
@@ -241,6 +251,12 @@ class HistoryManager:
             # 載入連續訪問記錄
             self.consecutive_access = deque(
                 data.get("consecutive_access", []),
+                maxlen=10
+            )
+            
+            # 載入二進制歷史
+            self.binary_history = deque(
+                data.get("binary_history", []),
                 maxlen=10
             )
             

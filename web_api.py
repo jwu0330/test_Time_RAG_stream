@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict
 import uvicorn
 
-from main_parallel import ParallelRAGSystem
+from main_parallel import ResponsesRAGSystem
 from config import Config, get_config_summary
 from core.history_manager import HistoryManager
 
@@ -32,7 +32,7 @@ app.add_middleware(
 )
 
 # 全局系統實例
-system: Optional[ParallelRAGSystem] = None
+system: Optional[ResponsesRAGSystem] = None
 history_manager: Optional[HistoryManager] = None
 
 
@@ -82,11 +82,11 @@ async def startup_event():
     global system, history_manager
     
     print("\n" + "="*60)
-    print("🚀 RAG 流式系統 API 啟動中...")
+    print("🚀 Responses API 雙回合 RAG 系統 API 啟動中...")
     print("="*60)
     
     # 初始化系統
-    system = ParallelRAGSystem()
+    system = ResponsesRAGSystem()
     history_manager = HistoryManager()
     
     # 初始化文件向量
@@ -139,8 +139,8 @@ async def health_check():
 @app.post("/api/query")
 async def process_query(request: QueryRequest):
     """
-    處理查詢請求 - 所有計時在後端進行
-    從後端接收文字開始計時，到轉發出去為止
+    處理查詢請求 - Responses API 雙回合流程
+    所有計時在後端進行，從接收到轉發完成
     """
     if system is None:
         raise HTTPException(status_code=503, detail="系統未初始化")
@@ -152,10 +152,10 @@ async def process_query(request: QueryRequest):
         query = request.query
         print(f"\n{'='*70}")
         print(f"📥 後端接收查詢: {query}")
-        print(f"⏱️  開始計時...")
+        print(f"⏱️  開始 Responses API 雙回合處理...")
         print(f"{'='*70}")
         
-        # 使用 ParallelRAGSystem 的並行處理方法（內部已有詳細計時）
+        # 使用 ResponsesRAGSystem 的雙回合並行處理（內部已有詳細計時）
         result = await system.process_query(query)
         
         # 提取需要的資訊
@@ -174,7 +174,7 @@ async def process_query(request: QueryRequest):
         
         print(f"\n{'='*70}")
         print(f"📤 後端準備轉發結果")
-        print(f"⏱️  後端總處理時間: {backend_total_time:.3f}s")
+        print(f"⏱️  Responses API 雙回合總處理時間: {backend_total_time:.3f}s")
         print(f"{'='*70}\n")
         
         # 返回詳細的響應格式（包含完整計時資訊）

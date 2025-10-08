@@ -15,20 +15,14 @@
 
 ### 我想深入了解系統
 
-4. **[11_ARCHITECTURE.md](11_ARCHITECTURE.md)** - 架構設計詳解
-5. **[12_DUAL_THREAD_TIMING.md](TIMING_GUIDE.md)** - 雙線程計時系統
+4. **[12_DUAL_THREAD_TIMING.md](12_DUAL_THREAD_TIMING.md)** - 雙線程計時系統
+5. 查看 `core/` 目錄中的源代碼了解架構細節
 
 ### 我要使用系統
 
-6. **[20_COMMAND_REFERENCE.md](20_COMMAND_REFERENCE.md)** - 所有命令參考
-7. **[21_WEB_INTERFACE.md](21_WEB_INTERFACE.md)** - Web 界面使用指南
-8. **[22_API_REFERENCE.md](22_API_REFERENCE.md)** - API 詳細文檔
-
-### 我要自定義或解決問題
-
-9. **[30_CUSTOMIZATION.md](30_CUSTOMIZATION.md)** - 自定義配置指南
-10. **[31_TROUBLESHOOTING.md](31_TROUBLESHOOTING.md)** - 故障排除手冊
-11. **[32_GIT_WORKFLOW.md](32_GIT_WORKFLOW.md)** - Git 使用指南
+6. 查看主 `README.md` 了解常用命令
+7. 查看 `web/README.md` 了解 Web 界面使用
+8. 查看 `web_api.py` 了解 API 端點
 
 ---
 
@@ -48,24 +42,24 @@
 | 文檔 | 用途 | 閱讀時間 |
 |------|------|---------|
 | **10_SYSTEM_OVERVIEW.md** | 系統完整概述 | 15分鐘 |
-| **11_ARCHITECTURE.md** | 架構設計說明 | 20分鐘 |
-| **12_DUAL_THREAD_TIMING.md** | 雙線程計時系統 | 15分鐘 |
+| **12_DUAL_THREAD_TIMING.md** | 雙線程計時系統（舊版參考） | 15分鐘 |
+| **13_RESPONSES_API_ARCHITECTURE.md** | Responses API 架構說明 | 20分鐘 |
+| **14_MIGRATION_GUIDE.md** | 遷移指南 | 15分鐘 |
+| **15_SETUP_SUMMARY.md** | 設置總結 | 10分鐘 |
+| **16_TROUBLESHOOTING.md** | 故障排除指南 | 15分鐘 |
+| **17_TIMING_UPDATES.md** | 時間記錄系統更新說明 | 10分鐘 |
+| **18_PERFORMANCE_OPTIMIZATION.md** | 性能優化指南 | 15分鐘 |
+| **19_FOUR_DIMENSION_APIS.md** | 四向度獨立 API 設計 | 20分鐘 |
 
-### 第三類：使用指南（20-29）
+### 第三類：代碼與配置
 
-| 文檔 | 用途 | 閱讀時間 |
-|------|------|---------|
-| **20_COMMAND_REFERENCE.md** | 命令參考手冊 | 10分鐘 |
-| **21_WEB_INTERFACE.md** | Web 界面完整指南 | 15分鐘 |
-| **22_API_REFERENCE.md** | API 詳細參考 | 20分鐘 |
-
-### 第四類：開發文檔（30-39）
-
-| 文檔 | 用途 | 閱讀時間 |
-|------|------|---------|
-| **30_CUSTOMIZATION.md** | 自定義配置指南 | 15分鐘 |
-| **31_TROUBLESHOOTING.md** | 故障排除指南 | 按需查閱 |
-| **32_GIT_WORKFLOW.md** | Git 工作流程 | 10分鐘 |
+| 位置 | 用途 |
+|------|------|
+| `README.md` | 主要說明文件，包含命令參考 |
+| `config.py` | 系統配置文件 |
+| `core/` | 核心模組源代碼 |
+| `web/` | Web 界面文件 |
+| `web_api.py` | API 後端實現 |
 
 ### 第五類：歸檔（ARCHIVE/）
 
@@ -84,31 +78,19 @@
 ### 場景 2：了解系統原理
 
 ```
-10_SYSTEM_OVERVIEW.md → 11_ARCHITECTURE.md
+10_SYSTEM_OVERVIEW.md → 12_DUAL_THREAD_TIMING.md → 閱讀源代碼
 ```
 
 ### 場景 3：使用 Web 界面
 
 ```
-21_WEB_INTERFACE.md → 啟動並使用
+web/README.md → 啟動並使用
 ```
 
-### 場景 4：遇到問題
+### 場景 4：自定義教材
 
 ```
-31_TROUBLESHOOTING.md → 查找解決方案
-```
-
-### 場景 5：自定義教材
-
-```
-30_CUSTOMIZATION.md → 修改 data/docs/
-```
-
-### 場景 6：提交代碼
-
-```
-32_GIT_WORKFLOW.md → Git 操作
+修改 config.py → 添加文件到 data/docs/ → 重新向量化
 ```
 
 ---
@@ -122,35 +104,23 @@
 - [x] 01_QUICK_START.md - 快速開始
 - [x] 02_INSTALLATION.md - 安裝指南
 - [x] 10_SYSTEM_OVERVIEW.md - 系統概述
-- [x] TIMING_GUIDE.md - 計時系統（需要重新命名為 12_DUAL_THREAD_TIMING.md）
-- [x] TIMING_IMPLEMENTATION_REPORT.md - 計時實施報告
+- [x] 12_DUAL_THREAD_TIMING.md - 雙線程計時系統（舊版）
+- [x] 13_RESPONSES_API_ARCHITECTURE.md - Responses API 架構
+- [x] 14_MIGRATION_GUIDE.md - 遷移指南
+- [x] 15_SETUP_SUMMARY.md - 設置總結
+- [x] 16_TROUBLESHOOTING.md - 故障排除
+- [x] 17_TIMING_UPDATES.md - 時間記錄更新
+- [x] DOC_REORG_SUMMARY.md - 文檔整理總結
 
-### 🔄 需要創建或更新
+### 📦 已歸檔（ARCHIVE/）
 
-- [ ] 11_ARCHITECTURE.md - 架構詳解（需要創建）
-- [ ] 20_COMMAND_REFERENCE.md - 命令參考（需要創建）
-- [ ] 21_WEB_INTERFACE.md - Web 界面指南（整合自多個文檔）
-- [ ] 22_API_REFERENCE.md - API 參考（整合自多個文檔）
-- [ ] 30_CUSTOMIZATION.md - 自定義指南（需要創建）
-- [ ] 31_TROUBLESHOOTING.md - 故障排除（整合自多個文檔）
-- [ ] 32_GIT_WORKFLOW.md - Git 工作流（整合自 GIT_SYNC.md）
-
-### 📦 待歸檔
-
-- [ ] FINAL_REPORT.md → ARCHIVE/
-- [ ] COMPLETE_CHECK.md → ARCHIVE/
-- [ ] README_INTEGRATION.md → ARCHIVE/
-- [ ] REORGANIZATION_REPORT.md → ARCHIVE/
-- [ ] BUGFIX_REPORT.md → ARCHIVE/
-- [ ] CLEANUP_FILES.md → ARCHIVE/
-- [ ] API_IMPLEMENTATION_REPORT.md → 整合到 22_API_REFERENCE.md
-- [ ] STARTUP_ANALYSIS.md → 整合到 31_TROUBLESHOOTING.md
-- [ ] WEB_INTERFACE_GUIDE.md → 整合到 21_WEB_INTERFACE.md
-- [ ] WEB_TESTING_GUIDE.md → 整合到 21_WEB_INTERFACE.md
-- [ ] WEB_FILES_ORGANIZATION.md → 整合到 21_WEB_INTERFACE.md
-- [ ] GIT_SYNC.md → 整合到 32_GIT_WORKFLOW.md
-- [ ] GIT_SYNC_NOW.txt → 刪除
-- [ ] 同步指令.txt → 刪除
+- [x] API_IMPLEMENTATION_REPORT.md
+- [x] STARTUP_ANALYSIS.md
+- [x] TIMING_IMPLEMENTATION_REPORT.md
+- [x] WEB_FILES_ORGANIZATION.md
+- [x] WEB_INTERFACE_GUIDE.md
+- [x] WEB_TESTING_GUIDE.md
+- [x] GIT_SYNC.md
 
 ---
 
@@ -168,8 +138,8 @@
    ├─ 了解24種情境
    └─ 了解雙線程架構
 
-3. 21_WEB_INTERFACE.md（10分鐘）
-   └─ 使用 Web 界面
+3. 啟動 Web 界面（10分鐘）
+   └─ 實際體驗系統
 ```
 
 ### 路徑 B：深入理解（2小時）
@@ -178,35 +148,31 @@
 1. 10_SYSTEM_OVERVIEW.md（15分鐘）
    └─ 系統整體概述
 
-2. 11_ARCHITECTURE.md（30分鐘）
-   ├─ 文件結構詳解
-   ├─ 模組職責說明
-   └─ 數據流分析
+2. 13_RESPONSES_API_ARCHITECTURE.md（20分鐘）
+   ├─ Responses API 架構說明
+   ├─ 雙回合流程詳解
+   └─ 性能優化
 
-3. 12_DUAL_THREAD_TIMING.md（20分鐘）
-   ├─ 計時機制說明
-   ├─ 性能分析方法
-   └─ 優化建議
+3. 17_TIMING_UPDATES.md（10分鐘）
+   └─ 時間記錄系統說明
 
-4. 22_API_REFERENCE.md（30分鐘）
-   ├─ API 端點詳解
-   ├─ 請求/響應格式
-   └─ 範例代碼
+4. 閱讀源代碼（45分鐘）
+   ├─ main_parallel.py - 主流程
+   ├─ core/ - 核心模組
+   └─ web_api.py - API 實現
 
-5. 30_CUSTOMIZATION.md（25分鐘）
-   ├─ 自定義教材
-   ├─ 調整情境
-   └─ 修改配置
+5. 修改配置（10分鐘）
+   └─ config.py - 自定義參數
 ```
 
-### 路徑 C：開發者（4小時）
+### 路徑 C：開發者（3小時）
 
-完整閱讀所有文檔，包括：
+完整閱讀所有文檔和源代碼，包括：
 - 系統原理和架構
-- API 實現細節
-- 自定義和擴展
-- 測試和調試
-- Git 工作流程
+- 核心模組實現
+- API 端點和數據流
+- 自定義和擴展方法
+- 測試和調試技巧
 
 ---
 
@@ -216,23 +182,23 @@
 
 **安裝相關**
 - [02_INSTALLATION.md](02_INSTALLATION.md)
-- [31_TROUBLESHOOTING.md](31_TROUBLESHOOTING.md) - 安裝問題
+- 主 README.md - 環境需求
 
 **使用相關**
 - [01_QUICK_START.md](01_QUICK_START.md)
-- [20_COMMAND_REFERENCE.md](20_COMMAND_REFERENCE.md)
-- [21_WEB_INTERFACE.md](21_WEB_INTERFACE.md)
+- 主 README.md - 常用命令
+- web/README.md - Web 界面
 
 **開發相關**
-- [11_ARCHITECTURE.md](11_ARCHITECTURE.md)
-- [22_API_REFERENCE.md](22_API_REFERENCE.md)
-- [30_CUSTOMIZATION.md](30_CUSTOMIZATION.md)
+- [10_SYSTEM_OVERVIEW.md](10_SYSTEM_OVERVIEW.md)
+- [13_RESPONSES_API_ARCHITECTURE.md](13_RESPONSES_API_ARCHITECTURE.md)
+- [17_TIMING_UPDATES.md](17_TIMING_UPDATES.md)
+- config.py - 配置文件
+- core/ - 源代碼
 
-**問題排除**
-- [31_TROUBLESHOOTING.md](31_TROUBLESHOOTING.md)
-
-**Git 操作**
-- [32_GIT_WORKFLOW.md](32_GIT_WORKFLOW.md)
+**故障排除**
+- [16_TROUBLESHOOTING.md](16_TROUBLESHOOTING.md)
+- [14_MIGRATION_GUIDE.md](14_MIGRATION_GUIDE.md)
 
 ---
 
@@ -252,7 +218,7 @@
 
 ### 4. 從問題出發
 
-遇到問題時，先查 [31_TROUBLESHOOTING.md](31_TROUBLESHOOTING.md)。
+遇到問題時，先查看錯誤信息和日誌輸出。
 
 ### 5. 實踐中學習
 

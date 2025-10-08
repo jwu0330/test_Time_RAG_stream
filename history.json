@@ -18,7 +18,8 @@
         "D3": "粗略",
         "D4": "正常狀態"
       },
-      "timestamp": "2025-10-08T16:08:16.077943"
+      "timestamp": "2025-10-08T16:08:16.077943",
+      "knowledge_binary": "0000"
     },
     {
       "query": "機器學習和深度學習有什麼區別？請詳細說明。",
@@ -38,20 +39,93 @@
         "D3": "非常詳細",
         "D4": "正常狀態"
       },
-      "timestamp": "2025-10-08T16:08:24.168892"
+      "timestamp": "2025-10-08T16:08:24.168892",
+      "knowledge_binary": "0000"
+    },
+    {
+      "query": "什麼是機器學習？",
+      "matched_docs": [
+        "ml_basics.txt",
+        "deep_learning.txt",
+        "nlp_intro.txt"
+      ],
+      "knowledge_points": [
+        "機器學習基礎",
+        "深度學習",
+        "自然語言處理"
+      ],
+      "dimensions": {
+        "D1": "一個",
+        "D2": "無錯誤",
+        "D3": "非常詳細",
+        "D4": "正常狀態"
+      },
+      "timestamp": "2025-10-09T00:02:35.117153",
+      "knowledge_binary": "0000"
+    },
+    {
+      "query": "早安啊",
+      "matched_docs": [
+        "nlp_intro.txt",
+        "deep_learning.txt",
+        "ml_basics.txt"
+      ],
+      "knowledge_points": [
+        "自然語言處理",
+        "深度學習",
+        "機器學習基礎"
+      ],
+      "dimensions": {
+        "D1": "一個",
+        "D2": "無錯誤",
+        "D3": "粗略",
+        "D4": "正常狀態"
+      },
+      "timestamp": "2025-10-09T00:03:17.947671",
+      "knowledge_binary": "0000"
+    },
+    {
+      "query": "所以你知道為什麼現在呃的神經網路可以直接坐到自然語言學習嘛",
+      "matched_docs": [
+        "nlp_intro.txt",
+        "deep_learning.txt",
+        "ml_basics.txt"
+      ],
+      "knowledge_points": [
+        "自然語言處理",
+        "深度學習",
+        "機器學習基礎"
+      ],
+      "dimensions": {
+        "D1": "一個",
+        "D2": "有錯誤",
+        "D3": "粗略",
+        "D4": "正常狀態"
+      },
+      "timestamp": "2025-10-09T00:04:11.566450",
+      "knowledge_binary": "0000"
     }
   ],
   "knowledge_point_counter": {
-    "機器學習基礎": 2,
-    "深度學習": 2,
-    "自然語言處理": 2
+    "機器學習基礎": 5,
+    "深度學習": 5,
+    "自然語言處理": 5
   },
   "consecutive_access": [
-    "機器學習基礎",
-    "深度學習",
     "自然語言處理",
     "機器學習基礎",
     "深度學習",
-    "自然語言處理"
+    "自然語言處理",
+    "自然語言處理",
+    "深度學習",
+    "機器學習基礎",
+    "自然語言處理",
+    "深度學習",
+    "機器學習基礎"
+  ],
+  "binary_history": [
+    "0000",
+    "0000",
+    "0000"
   ]
 }

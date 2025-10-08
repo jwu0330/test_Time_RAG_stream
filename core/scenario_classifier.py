@@ -1,15 +1,16 @@
 """
 情境分類器
-使用 OpenAI Function Calling 判定 24 種情境
+使用 OpenAI Responses API 的 function/tool call 判定 24 種情境
 """
 import json
 from pathlib import Path
 from typing import Dict, Optional, List
 from openai import OpenAI
+from config import Config
 
 
 class ScenarioClassifier:
-    """情境分類器 - 判定 24 種情境"""
+    """情境分類器 - 使用 Responses API 判定 24 種情境"""
     
     def __init__(self, scenarios_file: str = None, api_key: str = None):
         """
@@ -36,6 +37,14 @@ class ScenarioClassifier:
         
         # 載入本體論
         self._load_ontology()
+        
+        # 載入四個獨立分類器（稍後會注入 timer）
+        from core.dimension_classifiers import DimensionClassifiers
+        self.dimension_classifiers = DimensionClassifiers(api_key=api_key)
+    
+    def set_timer(self, timer):
+        """設置計時器"""
+        self.dimension_classifiers.timer = timer
     
     def _load_scenarios(self):
         """載入 24 種情境"""
@@ -67,130 +76,85 @@ class ScenarioClassifier:
             self.ontology_content = ""
             print(f"⚠️  載入本體論時發生錯誤: {e}")
     
-    def classify(self, query: str, history: List[Dict] = None) -> Dict:
+    async def classify(self, query: str, history: List[Dict] = None, matched_docs: List[str] = None) -> Dict:
         """
-        判定情境（使用 OpenAI Function Calling）
+        判定情境（使用四個獨立 API 並行判定，精準判定）
         
         Args:
             query: 用戶查詢
             history: 歷史對話記錄
             
         Returns:
-            情境判定結果
+            情境判定結果，包含 scenario_number (1-24)
         """
-        # 準備歷史記錄文本
-        history_text = ""
-        if history:
-            history_items = []
-            for h in history[-5:]:  # 只取最近5條
-                if isinstance(h, dict):
-                    query = h.get('query', '')
-                    kps = h.get('knowledge_points', [])
-                    dims = h.get('dimensions', {})
-                    history_items.append(f"Q: {query}\n知識點: {', '.join(kps)}\n向度: {dims}")
-                else:
-                    # QueryHistory 對象
-                    history_items.append(f"Q: {h.query}\n知識點: {', '.join(h.knowledge_points)}\n向度: {h.dimensions}")
-            history_text = "\n\n".join(history_items)
-        
-        # 構建提示詞
-        prompt = f"""
-請分析以下用戶問題，並判定四個向度：
-
-【知識本體論】
-{self.ontology_content}
-
-【歷史對話】
-{history_text if history_text else "（無歷史記錄）"}
-
-【當前問題】
-{query}
-
-請判定以下四個向度：
-1. D1（知識點數量）：這個問題涉及幾個知識點？（零個/一個/多個）
-2. D2（表達錯誤）：問題的表達是否有錯誤？（有錯誤/無錯誤）
-3. D3（表達詳細度）：問題的表達是否詳細？（粗略/非常詳細）
-4. D4（重複詢問）：是否在重複詢問同一知識點？（重複狀態/正常狀態）
-"""
-        
-        # 定義 Function
-        functions = [{
-            "name": "classify_dimensions",
-            "description": "判定用戶問題的四個向度",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "D1": {
-                        "type": "string",
-                        "enum": ["零個", "一個", "多個"],
-                        "description": "知識點數量"
-                    },
-                    "D2": {
-                        "type": "string",
-                        "enum": ["有錯誤", "無錯誤"],
-                        "description": "表達是否有錯誤"
-                    },
-                    "D3": {
-                        "type": "string",
-                        "enum": ["粗略", "非常詳細"],
-                        "description": "表達詳細度"
-                    },
-                    "D4": {
-                        "type": "string",
-                        "enum": ["重複狀態", "正常狀態"],
-                        "description": "是否重複詢問"
-                    }
-                },
-                "required": ["D1", "D2", "D3", "D4"]
-            }
-        }]
-        
         try:
-            # 呼叫 OpenAI API
-            response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "你是一個專業的教育情境分析助手。"},
-                    {"role": "user", "content": prompt}
-                ],
-                functions=functions,
-                function_call={"name": "classify_dimensions"},
-                temperature=0.3
-            )
+            print(f"\n🔍 開始四向度並行判定...")
             
-            # 解析 Function Call 結果
-            function_call = response.choices[0].message.function_call
-            dimensions = json.loads(function_call.arguments)
+            # 使用四個獨立 API 並行判定（返回數字）
+            dimensions_num = await self.dimension_classifiers.classify_all_parallel(query, history, matched_docs)
             
-            print(f"✅ API 判定結果：{dimensions}")
+            # 數字映射到文字（僅用於顯示）
+            d1_map = {0: "零個", 1: "一個", 2: "多個"}
+            d2_map = {0: "無錯誤", 1: "有錯誤"}
+            d3_map = {0: "粗略", 1: "非常詳細"}
+            d4_map = {0: "正常狀態", 1: "重複狀態"}
             
-            # 根據四向度查找對應的情境
-            scenario = self.get_scenario_by_dimensions(dimensions)
+            dimensions_text = {
+                "D1": d1_map.get(dimensions_num['D1'], "一個"),
+                "D2": d2_map.get(dimensions_num['D2'], "無錯誤"),
+                "D3": d3_map.get(dimensions_num['D3'], "粗略"),
+                "D4": d4_map.get(dimensions_num['D4'], "正常狀態")
+            }
+            
+            print(f"  D1 (知識點數量): {dimensions_num['D1']} = {dimensions_text['D1']}")
+            print(f"  D2 (表達錯誤): {dimensions_num['D2']} = {dimensions_text['D2']}")
+            print(f"  D3 (表達詳細度): {dimensions_num['D3']} = {dimensions_text['D3']}")
+            print(f"  D4 (重複詢問): {dimensions_num['D4']} = {dimensions_text['D4']}")
+            
+            # 後端自行計算情境編號（使用數字）
+            scenario_id = self.dimension_classifiers.dimensions_to_scenario_number(dimensions_num)
+            
+            print(f"✅ 計算得出情境編號：{scenario_id}")
+            
+            # 根據情境編號獲取詳細信息
+            scenario = self.get_scenario_by_number(scenario_id)
             
             if scenario:
                 result = {
-                    "scenario_number": scenario['scenario_number'],
-                    "dimensions": dimensions,
+                    "scenario_number": scenario_id,
+                    "dimensions": dimensions_text,  # 返回文字版本（用於顯示）
+                    "dimensions_num": dimensions_num,  # 返回數字版本（用於計算）
                     "description": scenario['description'],
-                    "display_text": self._format_display_text(dimensions, scenario['scenario_number'])
+                    "display_text": self._format_display_text(dimensions_text, scenario_id)
                 }
                 return result
             else:
-                return {
-                    "scenario_number": 0,
-                    "dimensions": dimensions,
-                    "description": "未找到對應情境",
-                    "display_text": f"無法匹配情境：{dimensions}"
-                }
+                # 降級處理
+                return self._get_default_result()
                 
         except Exception as e:
-            print(f"❌ API 呼叫失敗: {e}")
+            print(f"❌ 四向度判定失敗: {e}")
+            import traceback
+            traceback.print_exc()
             # 降級處理：返回預設情境
+            return self._get_default_result()
+    
+    def _get_default_result(self) -> Dict:
+        """獲取默認結果（情境 14）"""
+        scenario = self.get_scenario_by_number(14)
+        if scenario:
             return {
-                "scenario_number": 0,
-                "dimensions": {},
-                "description": "API 呼叫失敗",
-                "display_text": f"錯誤：{str(e)}"
+                "scenario_number": 14,
+                "dimensions": scenario['dimensions'],
+                "description": scenario['description'],
+                "display_text": self._format_display_text(scenario['dimensions'], 14)
+            }
+        else:
+            return {
+                "scenario_number": 14,
+                "dimensions": {"D1": "一個", "D2": "無錯誤", "D3": "粗略", "D4": "正常狀態"},
+                "description": "一個 + 無錯誤 + 粗略 + 正常狀態",
+                "display_text": "默認情境 14"
             }
     
     def get_scenario_by_number(self, number: int) -> Optional[Dict]:

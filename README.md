@@ -16,19 +16,31 @@
 
 ## 🚀 快速開始
 
-```bash
-# 1. 安裝依賴
-pip3 install --user -r requirements.txt
+### 方法 1: 一鍵測試（推薦）
 
-# 2. 設定 API Key
+```bash
+# 自動激活虛擬環境並運行測試
+bash README_ALL/BASH_ALL/quick_test.sh
+```
+
+### 方法 2: 手動步驟
+
+```bash
+# 1. 清理並安裝依賴到虛擬環境
+bash README_ALL/BASH_ALL/cleanup_and_reinstall.sh
+
+# 2. 激活虛擬環境
+source .venv/bin/activate
+
+# 3. 設定 API Key
 export OPENAI_API_KEY="your-api-key-here"
 
-# 3. 運行測試
-python3 scripts/run_test.py
+# 4. 運行測試
+python3 main_parallel.py
 
-# 4. 或啟動 Web 界面
+# 5. 或啟動 Web API
 python3 web_api.py
-open web/index.html
+# 訪問 http://localhost:8000/docs
 ```
 
 ---
@@ -92,21 +104,35 @@ test_Time_RAG_stream/
 
 ## 📝 常用命令
 
-```bash
-# 運行測試
-python3 scripts/run_test.py
+### 環境管理
 
-# 啟動 Web API
-python3 web_api.py
+```bash
+# 激活虛擬環境
+source .venv/bin/activate
+
+# 退出虛擬環境
+deactivate
+
+# 重新安裝依賴
+bash README_ALL/BASH_ALL/cleanup_and_reinstall.sh
+```
+
+### 運行程序（需先激活虛擬環境）
+
+```bash
+# 快速測試（自動激活虛擬環境）
+bash README_ALL/BASH_ALL/quick_test.sh
 
 # 運行主程序
 python3 main_parallel.py
 
-# 測試 D4 邏輯
-python3 tests/test_d4_logic.py
+# 啟動 Web API
+python3 web_api.py
 
-# 生成新情境
-python3 scripts/scenario_generator.py
+# 清除歷史記錄
+bash README_ALL/BASH_ALL/clear_history.sh
+# 或
+python3 clear_history.py
 ```
 
 ---
@@ -159,23 +185,47 @@ open web/index.html
 
 - Python 3.8+
 - OpenAI API Key
-- 依賴套件: openai, numpy, fastapi, uvicorn, pydantic
+- 虛擬環境（`.venv/`）
+- 依賴套件: 
+  - openai >= 1.54.0（支持 Responses API）
+  - numpy >= 1.24.0
+  - fastapi >= 0.104.0
+  - uvicorn >= 0.24.0
+  - pydantic >= 2.0.0
+  - python-dotenv >= 1.0.0
 
 ---
 
 ## 📦 安裝
 
+### 推薦方式：使用虛擬環境
+
 ```bash
-# 如果沒有 pip
-sudo apt install python3-pip
-
-# 安裝依賴
-pip3 install --user -r requirements.txt
-
-# 或使用安裝腳本
-chmod +x README_ALL/BASH_ALL/install_deps.sh
-./README_ALL/BASH_ALL/install_deps.sh
+# 一鍵清理並安裝到虛擬環境
+bash README_ALL/BASH_ALL/cleanup_and_reinstall.sh
 ```
+
+### 手動安裝
+
+```bash
+# 1. 創建虛擬環境（如果不存在）
+python3 -m venv .venv
+
+# 2. 激活虛擬環境
+source .venv/bin/activate
+
+# 3. 升級 pip
+pip install --upgrade pip
+
+# 4. 安裝依賴
+pip install -r requirements.txt
+```
+
+### ⚠️ 重要提示
+
+- **請使用虛擬環境**，避免污染全局 Python 環境
+- 確保 OpenAI SDK 版本 >= 1.54.0（支持 Responses API）
+- 所有腳本都會自動檢查並激活虛擬環境
 
 ---
 
