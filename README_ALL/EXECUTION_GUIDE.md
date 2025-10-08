@@ -1,25 +1,38 @@
 # 執行指南
 
+## 📂 文件組織規則
+
+⚠️ **重要規則**：
+- 📝 **所有說明文件** → `README_ALL/` 目錄
+- 🔧 **所有 .sh 腳本** → `README_ALL/BASH_ALL/` 目錄
+- 💻 **核心程式碼** → 根目錄或 `core/`, `scripts/` 等目錄
+
+例如：
+- ✅ `README_ALL/README_SIMPLE.md` - 正確
+- ✅ `README_ALL/BASH_ALL/SYNC_NOW.sh` - 正確
+- ❌ `SYNC_NOW.sh` - 錯誤（應放在 BASH_ALL/）
+- ❌ `README.txt` - 錯誤（應放在 README_ALL/）
+
+---
+
 ## 🚀 首次設置
 
-### 步驟 1：創建虛擬環境
+### 步驟 1：安裝依賴
 ```bash
-python3 -m venv venv
+# 如果沒有 pip，先安裝
+sudo apt install python3-pip
+
+# 安裝依賴
+pip3 install --user -r requirements.txt
 ```
 
-### 步驟 2：激活環境
-```bash
-source venv/bin/activate
-```
-
-### 步驟 3：安裝依賴
-```bash
-pip install -r requirements.txt
-```
-
-### 步驟 4：設定 API Key
+### 步驟 2：設定 API Key
 ```bash
 export OPENAI_API_KEY="your-api-key-here"
+
+# 或創建 .env 文件
+cp .env.example .env
+# 編輯 .env 並添加你的 API Key
 ```
 
 ---
@@ -28,27 +41,28 @@ export OPENAI_API_KEY="your-api-key-here"
 
 ### 運行測試
 ```bash
-source venv/bin/activate
-python RUN_TEST.py
+python3 scripts/run_test.py
 ```
 
 ### 啟動 Web 界面
 ```bash
-source venv/bin/activate
-python web_api.py
+python3 web_api.py
 # 然後在瀏覽器打開 web_interface.html
 ```
 
 ### 測試 D4 邏輯
 ```bash
-source venv/bin/activate
-python test_d4_logic.py
+python3 tests/test_d4_logic.py
 ```
 
 ### 完整系統測試
 ```bash
-source venv/bin/activate
-python test_system.py
+python3 tests/test_system.py
+```
+
+### 直接運行主程序
+```bash
+python3 main_parallel.py
 ```
 
 ---
@@ -57,8 +71,8 @@ python test_system.py
 
 ### 修改教材
 ```bash
-# 1. 將教材放入 docs/ 目錄
-cp your_materials/* docs/
+# 1. 將教材放入 data/docs/ 目錄
+cp your_materials/* data/docs/
 
 # 2. 編輯配置
 nano config.py
@@ -66,19 +80,18 @@ nano config.py
 
 # 3. 刪除舊向量並重新生成
 rm vectors.pkl vectors.json
-python RUN_TEST.py
+python3 scripts/run_test.py
 ```
 
 ### 生成新的情境
 ```bash
-source venv/bin/activate
-python scenario_generator.py
+python3 scripts/scenario_generator.py
 ```
 
 ### 調整情境內容
 ```bash
-# 編輯 scenarios_24/ 目錄中的 JSON 文件
-nano scenarios_24/scenario_08.json
+# 編輯 data/scenarios/ 目錄中的 JSON 文件
+nano data/scenarios/scenario_08.json
 ```
 
 ---
@@ -93,11 +106,6 @@ cat CLEANUP_FILES.md
 # 執行清理（複製 CLEANUP_FILES.md 中的命令）
 ```
 
-### 刪除虛擬環境
-```bash
-rm -rf venv/
-```
-
 ### 刪除向量文件
 ```bash
 rm -f vectors.pkl vectors.json
@@ -106,6 +114,12 @@ rm -f vectors.pkl vectors.json
 ### 刪除歷史記錄
 ```bash
 rm -f history.json
+```
+
+### 刪除緩存
+```bash
+rm -rf __pycache__
+rm -rf core/__pycache__
 ```
 
 ---
@@ -136,19 +150,18 @@ export OPENAI_API_KEY="your-key"
 
 ### 模組找不到
 ```bash
-source venv/bin/activate
-pip install -r requirements.txt
+pip3 install --user -r requirements.txt
 ```
 
 ### 向量化失敗
 ```bash
 rm vectors.pkl vectors.json
-python RUN_TEST.py
+python3 scripts/run_test.py
 ```
 
 ### 情境文件不存在
 ```bash
-python scenario_generator.py
+python3 scripts/scenario_generator.py
 ```
 
 ---

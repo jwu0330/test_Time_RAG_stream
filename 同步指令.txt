@@ -1,0 +1,156 @@
+=================================================================
+                    Git 同步到遠端倉庫
+=================================================================
+
+📂 文件組織規則（重要！）
+⚠️ 本專案的文件組織規則：
+   📝 所有說明文件 → README_ALL/ 目錄
+   🔧 所有 .sh 腳本 → README_ALL/BASH_ALL/ 目錄
+   💻 核心程式碼 → 根目錄或 core/, scripts/ 等目錄
+
+-----------------------------------------------------------------
+
+📋 當前專案狀態：
+✅ 已完成架構重組
+✅ 文檔已整理到 README_ALL/
+✅ 腳本已整理到 README_ALL/BASH_ALL/
+✅ 根目錄已清理
+✅ 新增 README.md
+
+-----------------------------------------------------------------
+                    方法 1：使用腳本（推薦）
+-----------------------------------------------------------------
+
+chmod +x README_ALL/BASH_ALL/SYNC_NOW.sh
+./README_ALL/BASH_ALL/SYNC_NOW.sh
+
+-----------------------------------------------------------------
+                    方法 2：手動執行（複製以下命令）
+-----------------------------------------------------------------
+
+# 1. 查看狀態
+git status
+
+# 2. 添加所有變更
+git add .
+
+# 3. 提交變更
+git commit -m "重組專案架構並更新文檔
+
+主要變更：
+- 重組目錄結構：core/, data/, tests/, scripts/
+- 整理文檔到 README_ALL/ 目錄
+- 整理腳本到 README_ALL/BASH_ALL/ 目錄
+- 刪除根目錄重複文件
+- 新增根目錄 README.md
+- 更新所有文檔路徑和命令
+- 在所有文檔中強調文件組織規則"
+
+# 4. 推送到遠端（選擇你的分支）
+git push origin main
+# 或
+git push origin master
+
+-----------------------------------------------------------------
+                    方法 3：分步執行
+-----------------------------------------------------------------
+
+步驟 1：查看變更
+    git status
+
+步驟 2：添加文件
+    git add .
+
+步驟 3：提交
+    git commit -m "重組專案架構並更新文檔"
+
+步驟 4：推送
+    git push origin main
+
+-----------------------------------------------------------------
+                    常見問題處理
+-----------------------------------------------------------------
+
+問題 1：推送被拒絕
+    解決：git pull origin main
+         git push origin main
+
+問題 2：分支名稱不對
+    查看分支：git branch
+    推送到 master：git push origin master
+
+問題 3：需要強制推送
+    git push -f origin main
+
+問題 4：第一次推送
+    git push -u origin main
+
+-----------------------------------------------------------------
+                    推送後驗證
+-----------------------------------------------------------------
+
+1. 訪問你的 GitHub 倉庫
+2. 確認新目錄已出現：
+   ✅ core/
+   ✅ data/
+   ✅ tests/
+   ✅ scripts/
+   ✅ README_ALL/
+3. 確認根目錄只有必要文件
+4. 確認 README.md 顯示正確
+
+-----------------------------------------------------------------
+                    完整目錄結構
+-----------------------------------------------------------------
+
+test_Time_RAG_stream/
+├── README.md                   ← 新增
+├── main_parallel.py
+├── web_api.py
+├── config.py
+├── requirements.txt
+├── pyproject.toml
+├── .gitignore
+├── .env.example
+│
+├── core/                       ← 核心模組
+│   ├── vector_store.py
+│   ├── rag_module.py
+│   ├── scenario_module.py
+│   ├── scenario_matcher.py
+│   ├── history_manager.py
+│   └── timer_utils.py
+│
+├── data/                       ← 數據目錄
+│   ├── docs/
+│   ├── scenarios/
+│   └── knowledge_relations.json
+│
+├── tests/                      ← 測試目錄
+│   ├── test_system.py
+│   └── test_d4_logic.py
+│
+├── scripts/                    ← 工具腳本
+│   ├── run_test.py
+│   ├── scenario_generator.py
+│   └── reorganize.py
+│
+└── README_ALL/                 ← 完整文檔
+    ├── README_SIMPLE.md
+    ├── README_FULL.md
+    ├── EXECUTION_GUIDE.md
+    ├── GIT_SYNC.md
+    ├── ARCHITECTURE_CHECK.md
+    ├── REORGANIZATION_REPORT.md
+    └── CLEANUP_FILES.md
+
+=================================================================
+                    立即執行（複製這段）
+=================================================================
+
+cd /home/jim/code/python/test_Time_RAG_stream
+git add .
+git commit -m "重組專案架構並更新文檔"
+git push origin main
+
+=================================================================
