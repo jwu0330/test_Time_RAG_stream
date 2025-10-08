@@ -111,7 +111,7 @@ class HistoryManager:
         self.history.append(record)
         
         # 添加到二進制歷史（使用 test_binary_logic 的函數）
-        from test_binary_logic import add_conversation_record
+        from core.binary_logic import add_conversation_record
         add_conversation_record(list(self.binary_history), knowledge_binary)
         self.binary_history.append(knowledge_binary)
         

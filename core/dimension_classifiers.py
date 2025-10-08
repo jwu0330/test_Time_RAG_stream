@@ -234,13 +234,13 @@ class DimensionClassifiers:
             }
         """
         import asyncio
-        from test_binary_logic import count_knowledge_points
+        from core.binary_logic import count_knowledge_points, detect_repetition
         
         # 並行執行 3 個 API 調用：D2, D3, D4
         results = await asyncio.gather(
             self.classify_d2_has_error(query),
             self.classify_d3_detail_level(query),
-            self.classify_d4_knowledge_detection(query)  # D4 API 返回二進制編碼
+            self.classify_d4_knowledge_detection(query)
         )
         
         d2 = results[0]  # 0/1

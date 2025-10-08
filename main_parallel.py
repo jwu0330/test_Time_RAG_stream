@@ -276,9 +276,9 @@ class ResponsesRAGSystem:
         # 打印詳細計時報告
         self.timer.print_report()
         
-        # 記錄到歷史
+        # 記錄到歷史（從 scenario_result 獲取所有維度）
         dimensions_dict = {
-            "D1": "一個",  # TODO: 從 RAG 結果計算
+            "D1": scenario_result['dimensions']['D1'],  # 從 D4 的二進制編碼計算
             "D2": scenario_result['dimensions']['D2'],
             "D3": scenario_result['dimensions']['D3'],
             "D4": scenario_result['dimensions']['D4']

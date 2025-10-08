@@ -1,7 +1,7 @@
 # 文檔索引
 
-**📅 更新日期**: 2025-10-08  
-**📚 文檔版本**: 2.0
+**📅 更新日期**: 2025-01-09  
+**📚 文檔版本**: 3.0（三個 API + 四個並行分支）
 
 ---
 
@@ -15,14 +15,16 @@
 
 ### 我想深入了解系統
 
-4. **[12_DUAL_THREAD_TIMING.md](12_DUAL_THREAD_TIMING.md)** - 雙線程計時系統
-5. 查看 `core/` 目錄中的源代碼了解架構細節
+4. **[11_SIMPLIFICATION_SUMMARY.md](11_SIMPLIFICATION_SUMMARY.md)** - 系統簡化總結
+5. **[19_THREE_APIS_ARCHITECTURE.md](19_THREE_APIS_ARCHITECTURE.md)** - 三個 API 架構
+6. **[20_FOUR_PARALLEL_ARCHITECTURE.md](20_FOUR_PARALLEL_ARCHITECTURE.md)** - 四個並行分支
+7. 查看 `core/` 目錄中的源代碼了解架構細節
 
 ### 我要使用系統
 
-6. 查看主 `README.md` 了解常用命令
-7. 查看 `web/README.md` 了解 Web 界面使用
-8. 查看 `web_api.py` 了解 API 端點
+8. 查看主 `README.md` 了解常用命令
+9. 查看 `web/README.md` 了解 Web 界面使用
+10. 查看 `web_api.py` 了解 API 端點
 
 ---
 
@@ -33,7 +35,6 @@
 | 文檔 | 用途 | 閱讀時間 |
 |------|------|---------|
 | **00_README_INDEX.md** | 文檔導航（本文件） | 2分鐘 |
-| **00_DOC_REORGANIZATION_2025-10-08.md** | 文檔整理報告 | 5分鐘 |
 | **01_QUICK_START.md** | 快速開始指南 | 5分鐘 |
 | **02_INSTALLATION.md** | 詳細安裝說明 | 10分鐘 |
 
@@ -42,20 +43,22 @@
 | 文檔 | 用途 | 閱讀時間 |
 |------|------|---------|
 | **10_SYSTEM_OVERVIEW.md** | 系統完整概述 | 15分鐘 |
-| **12_DUAL_THREAD_TIMING.md** | 雙線程計時系統（舊版參考） | 15分鐘 |
-| **13_RESPONSES_API_ARCHITECTURE.md** | Responses API 架構說明 | 20分鐘 |
-| **14_MIGRATION_GUIDE.md** | 遷移指南 | 15分鐘 |
-| **15_SETUP_SUMMARY.md** | 設置總結 | 10分鐘 |
+| **11_SIMPLIFICATION_SUMMARY.md** | 系統簡化總結 | 10分鐘 |
 | **16_TROUBLESHOOTING.md** | 故障排除指南 | 15分鐘 |
-| **17_TIMING_UPDATES.md** | 時間記錄系統更新說明 | 10分鐘 |
-| **18_PERFORMANCE_OPTIMIZATION.md** | 性能優化指南 | 15分鐘 |
-| **19_FOUR_DIMENSION_APIS.md** | 四向度獨立 API 設計 | 20分鐘 |
+| **19_THREE_APIS_ARCHITECTURE.md** | 三個 API 架構說明 | 15分鐘 |
 
-### 第三類：代碼與配置
+### 第三類：架構說明（20-29）
+
+| 文檔 | 用途 | 閱讀時間 |
+|------|------|---------|
+| **20_FOUR_PARALLEL_ARCHITECTURE.md** | 四個並行分支架構 | 15分鐘 |
+
+### 第四類：腳本與工具
 
 | 位置 | 用途 |
 |------|------|
-| `README.md` | 主要說明文件，包含命令參考 |
+| `BASH_ALL/` | 所有執行腳本 |
+| `README.md` | 主要說明文件 |
 | `config.py` | 系統配置文件 |
 | `core/` | 核心模組源代碼 |
 | `web/` | Web 界面文件 |
