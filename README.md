@@ -70,16 +70,13 @@ test_Time_RAG_stream/
 │   └── scenario_generator.py
 │
 └── README_ALL/             # 📝 所有說明文件
-    ├── README_SIMPLE.md
-    ├── README_FULL.md
-    ├── EXECUTION_GUIDE.md
-    ├── GIT_SYNC.md
-    ├── WEB_INTERFACE_GUIDE.md
-    ├── STARTUP_ANALYSIS.md
-    ├── COMPLETE_CHECK.md
-    └── BASH_ALL/           # 🔧 所有 .sh 腳本
-        ├── SYNC_NOW.sh
-        └── install_deps.sh
+    ├── 00_README_INDEX.md      # 📑 文檔導航（從這裡開始）
+    ├── 01_QUICK_START.md       # 🚀 5分鐘快速開始
+    ├── 02_INSTALLATION.md      # 🔧 詳細安裝指南
+    ├── 10_SYSTEM_OVERVIEW.md   # 📊 系統完整概述
+    ├── TIMING_GUIDE.md         # ⏱️ 雙線程計時系統
+    ├── DOC_REORG_SUMMARY.md    # 📋 文檔整理總結
+    └── BASH_ALL/               # 🔧 所有 .sh 腳本
 ```
 
 ---
@@ -140,13 +137,21 @@ open web/index.html
 
 ## 📖 詳細文檔
 
-- **快速開始**: [README_ALL/README_SIMPLE.md](README_ALL/README_SIMPLE.md)
-- **完整文檔**: [README_ALL/README_FULL.md](README_ALL/README_FULL.md)
-- **執行指南**: [README_ALL/EXECUTION_GUIDE.md](README_ALL/EXECUTION_GUIDE.md)
-- **Git 同步**: [README_ALL/GIT_SYNC.md](README_ALL/GIT_SYNC.md)
-- **Web 界面**: [README_ALL/WEB_INTERFACE_GUIDE.md](README_ALL/WEB_INTERFACE_GUIDE.md)
-- **啟動分析**: [README_ALL/STARTUP_ANALYSIS.md](README_ALL/STARTUP_ANALYSIS.md)
-- **完整檢查**: [README_ALL/COMPLETE_CHECK.md](README_ALL/COMPLETE_CHECK.md)
+**📑 文檔導航**: [README_ALL/00_README_INDEX.md](README_ALL/00_README_INDEX.md) - **從這裡開始！**
+
+### 快速開始
+
+- **5分鐘上手**: [README_ALL/01_QUICK_START.md](README_ALL/01_QUICK_START.md) ⭐
+- **詳細安裝**: [README_ALL/02_INSTALLATION.md](README_ALL/02_INSTALLATION.md)
+
+### 系統說明
+
+- **系統概述**: [README_ALL/10_SYSTEM_OVERVIEW.md](README_ALL/10_SYSTEM_OVERVIEW.md)
+- **雙線程計時**: [README_ALL/TIMING_GUIDE.md](README_ALL/TIMING_GUIDE.md)
+
+### 其他文檔
+
+查看完整的文檔索引：[README_ALL/00_README_INDEX.md](README_ALL/00_README_INDEX.md)
 
 ---
 

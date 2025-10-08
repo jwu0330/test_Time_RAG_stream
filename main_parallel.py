@@ -4,6 +4,7 @@
 """
 import asyncio
 import os
+import time
 from datetime import datetime
 from typing import Dict, List, Optional
 from pathlib import Path
@@ -94,7 +95,7 @@ class ParallelRAGSystem:
     
     async def main_thread_rag(self, query: str) -> Dict:
         """
-        主線：RAG 檢索 + 教材生成
+        主線（Thread A）：RAG 檢索 + 教材生成
         
         Args:
             query: 用戶查詢
@@ -102,7 +103,8 @@ class ParallelRAGSystem:
         Returns:
             RAG 檢索結果和草稿答案
         """
-        print("【主線】開始 RAG 檢索...")
+        print("【Thread A - 主線】開始 RAG 檢索...")
+        self.timer.start_stage("RAG檢索", thread='A')
         
         # RAG 檢索
         retrieved_docs = await self.rag_retriever.retrieve(query, top_k=3)
@@ -115,7 +117,10 @@ class ParallelRAGSystem:
             if doc_id in Config.KNOWLEDGE_POINTS:
                 knowledge_points.append(Config.KNOWLEDGE_POINTS[doc_id])
         
+        self.timer.stop_stage("RAG檢索", thread='A')
+        
         # 生成草稿答案
+        self.timer.start_stage("草稿生成", thread='A')
         draft_prompt = f"""
 根據以下教材內容回答問題。
 
@@ -139,8 +144,9 @@ class ParallelRAGSystem:
         )
         
         draft_answer = response.choices[0].message.content
+        self.timer.stop_stage("草稿生成", thread='A')
         
-        print("【主線】RAG 檢索完成")
+        print("【Thread A - 主線】RAG 檢索完成")
         
         return {
             "draft_answer": draft_answer,
@@ -152,7 +158,7 @@ class ParallelRAGSystem:
     
     async def branch_thread_scenario(self, query: str) -> Dict:
         """
-        分支：情境判定
+        分支（Thread B）：情境判定
         
         Args:
             query: 用戶查詢
@@ -160,15 +166,19 @@ class ParallelRAGSystem:
         Returns:
             情境判定結果
         """
-        print("【分支】開始情境判定...")
+        print("【Thread B - 分支】開始情境判定...")
+        self.timer.start_stage("獲取歷史", thread='B')
         
         # 獲取歷史記錄
         history = self.history_manager.get_recent_history(n=5)
+        self.timer.stop_stage("獲取歷史", thread='B')
         
         # 呼叫 API 進行四向度判定
+        self.timer.start_stage("四向度判定", thread='B')
         result = self.scenario_classifier.classify(query, history=history)
+        self.timer.stop_stage("四向度判定", thread='B')
         
-        print("【分支】情境判定完成")
+        print("【Thread B - 分支】情境判定完成")
         
         return result
     
@@ -270,7 +280,10 @@ class ParallelRAGSystem:
         
         # ============ 雙線程並行處理 ============
         print("\n🚀 啟動雙線程並行處理...\n")
-        self.timer.start_stage("並行處理")
+        self.timer.start_stage("並行處理（總時間）")
+        
+        # 記錄並行開始時間
+        parallel_start = time.perf_counter()
         
         # 同時啟動兩條線
         main_task = self.main_thread_rag(query)
@@ -279,16 +292,20 @@ class ParallelRAGSystem:
         # 等待兩條線都完成
         rag_result, scenario_result = await asyncio.gather(main_task, branch_task)
         
-        self.timer.stop_stage("並行處理")
-        print("\n✅ 兩條線都已完成\n")
+        parallel_duration = time.perf_counter() - parallel_start
+        self.timer.stop_stage("並行處理（總時間）")
+        print(f"\n✅ 兩條線都已完成（並行耗時: {parallel_duration:.3f}s）\n")
         
         # ============ 會診：合併結果 ============
-        self.timer.start_stage("會診生成")
+        self.timer.start_stage("會診合併")
         
         final_answer = await self.merge_and_generate(rag_result, scenario_result, query)
         
-        self.timer.stop_stage("會診生成")
+        self.timer.stop_stage("會診合併")
         self.timer.stop_stage("總流程")
+        
+        # 打印詳細計時報告
+        self.timer.print_report()
         
         # 記錄到歷史
         dimensions_dict = {
@@ -331,9 +348,29 @@ class ParallelRAGSystem:
             print(f"  {dim}: {value}")
         print(f"\n知識點：{', '.join(result['knowledge_points']) if result['knowledge_points'] else '無'}")
         print(f"\n時間報告：")
-        for stage, duration in result['time_report']['stages'].items():
-            print(f"  {stage}: {duration:.3f}s")
-        print(f"  總計: {result['time_report']['total_time']:.3f}s")
+        time_report = result['time_report']
+        
+        # 主流程時間
+        if 'stages' in time_report:
+            print("  【主流程】")
+            for stage, duration in time_report['stages'].items():
+                print(f"    {stage}: {duration:.3f}s")
+        
+        # Thread A 時間
+        if 'thread_a' in time_report:
+            print(f"\n  【{time_report['thread_a']['thread_name']}】")
+            for stage, duration in time_report['thread_a']['stages'].items():
+                print(f"    {stage}: {duration:.3f}s")
+            print(f"    小計: {time_report['thread_a']['total_time']:.3f}s")
+        
+        # Thread B 時間
+        if 'thread_b' in time_report:
+            print(f"\n  【{time_report['thread_b']['thread_name']}】")
+            for stage, duration in time_report['thread_b']['stages'].items():
+                print(f"    {stage}: {duration:.3f}s")
+            print(f"    小計: {time_report['thread_b']['total_time']:.3f}s")
+        
+        print(f"\n  總計: {time_report['total_time']:.3f}s")
         print("="*70)
 
 

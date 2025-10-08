@@ -4,6 +4,7 @@ Web API 後端
 所有計時在後端進行，不受前端渲染影響
 """
 import asyncio
+import time
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -138,16 +139,23 @@ async def health_check():
 @app.post("/api/query")
 async def process_query(request: QueryRequest):
     """
-    處理查詢請求 - 簡化版本用於 Web 界面
+    處理查詢請求 - 所有計時在後端進行
+    從後端接收文字開始計時，到轉發出去為止
     """
     if system is None:
         raise HTTPException(status_code=503, detail="系統未初始化")
     
     try:
-        # 簡化的查詢處理
-        query = request.query
+        # 記錄後端接收時間（計時起點）
+        backend_receive_time = time.perf_counter()
         
-        # 使用 ParallelRAGSystem 的並行處理方法
+        query = request.query
+        print(f"\n{'='*70}")
+        print(f"📥 後端接收查詢: {query}")
+        print(f"⏱️  開始計時...")
+        print(f"{'='*70}")
+        
+        # 使用 ParallelRAGSystem 的並行處理方法（內部已有詳細計時）
         result = await system.process_query(query)
         
         # 提取需要的資訊
@@ -156,20 +164,36 @@ async def process_query(request: QueryRequest):
         final_answer = result.get("final_answer", "抱歉，無法生成回答")
         scenario_number = result.get("scenario_number", 0)
         scenario_description = result.get("scenario_description", "")
+        knowledge_points = result.get("knowledge_points", [])
         
-        # 計算總時間
+        # 獲取詳細計時報告
         time_report = result.get("time_report", {})
-        total_time = time_report.get("total_time", 0)
         
-        # 返回簡化的響應格式（符合前端期望）
+        # 計算後端總處理時間（從接收到準備轉發）
+        backend_total_time = time.perf_counter() - backend_receive_time
+        
+        print(f"\n{'='*70}")
+        print(f"📤 後端準備轉發結果")
+        print(f"⏱️  後端總處理時間: {backend_total_time:.3f}s")
+        print(f"{'='*70}\n")
+        
+        # 返回詳細的響應格式（包含完整計時資訊）
         return {
             "answer": final_answer,
             "dimensions": dimensions,
             "matched_docs": matched_docs,
+            "knowledge_points": knowledge_points,
             "scenario": f"第 {scenario_number} 種情境",
             "scenario_number": scenario_number,
             "scenario_description": scenario_description,
-            "response_time": total_time
+            "response_time": backend_total_time,
+            "timing_details": {
+                "backend_total": round(backend_total_time, 3),
+                "stages": time_report.get("stages", {}),
+                "thread_a": time_report.get("thread_a", {}),
+                "thread_b": time_report.get("thread_b", {}),
+                "timestamp": time_report.get("timestamp", "")
+            }
         }
         
     except Exception as e:
