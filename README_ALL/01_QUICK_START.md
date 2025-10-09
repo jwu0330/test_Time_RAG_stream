@@ -1,35 +1,36 @@
 # 快速開始指南
 
 **⏱️ 預計時間**: 5 分鐘  
-**📅 更新日期**: 2025-01-09  
-**✅ 系統版本**: 3.0（三個 API + 四個並行分支）
+**📅 更新日期**: 2025-10-09  
+**✅ 系統版本**: 3.0（三個 API + 四個並行分支）  
+**🔧 環境管理**: Poetry（推薦）
 
 ---
 
 ## 🚀 三步驟快速啟動
 
-### 步驟 1：啟動虛擬環境並安裝依賴（2分鐘）
+### 步驟 1：安裝依賴（1分鐘）
 
 ```bash
-# 啟動虛擬環境
-source .venv/bin/activate
-
-# 安裝 Python 依賴
-pip3 install -r requirements.txt
+# 使用 Poetry 安裝依賴（自動管理虛擬環境）
+poetry install
 ```
 
 **依賴列表**：
-- openai >= 1.12.0
+- openai >= 1.54.0
 - numpy >= 1.24.0
 - fastapi >= 0.104.0
 - uvicorn >= 0.24.0
 - pydantic >= 2.0.0
+- python-dotenv >= 1.0.0
 
-**注意**：如果虛擬環境不存在，請先創建：
+**注意**：如果沒有安裝 Poetry，請先安裝：
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip3 install -r requirements.txt
+# 安裝 Poetry
+curl -sSL https://install.python-poetry.org | python3 -
+
+# 或使用 pip
+pip install --user poetry
 ```
 
 ### 步驟 2：設定 API Key（1分鐘）
@@ -50,11 +51,15 @@ nano .env
 
 ```bash
 # 方式 A：運行主程序
-python3 main_parallel.py
+poetry run python main_parallel.py
 
 # 方式 B：啟動 Web 界面
-python3 web_api.py
+poetry run python web_api.py
 # 然後在瀏覽器打開 web/index.html
+
+# 方式 C：進入 Poetry Shell（推薦）
+poetry shell
+python main_parallel.py
 ```
 
 ---
@@ -67,8 +72,11 @@ python3 web_api.py
 # 檢查 Python 版本（需要 >= 3.8）
 python3 --version
 
+# 檢查 Poetry 版本
+poetry --version
+
 # 檢查依賴是否安裝
-pip3 list | grep -E "openai|fastapi|numpy"
+poetry show | grep -E "openai|fastapi|numpy"
 
 # 檢查 API Key
 echo $OPENAI_API_KEY
@@ -108,7 +116,11 @@ echo $OPENAI_API_KEY
 ### 測試命令行版本
 
 ```bash
-python3 main_parallel.py
+poetry run python main_parallel.py
+
+# 或先進入 shell
+poetry shell
+python main_parallel.py
 ```
 
 **測試問題**：
@@ -119,7 +131,7 @@ python3 main_parallel.py
 
 ```bash
 # 1. 啟動後端
-python3 web_api.py
+poetry run python web_api.py
 
 # 2. 打開前端（新開終端或瀏覽器）
 open web/index.html
@@ -182,7 +194,11 @@ test_Time_RAG_stream/
 
 **解決**：
 ```bash
-pip3 install --user -r requirements.txt
+# 使用 Poetry 安裝依賴
+poetry install
+
+# 確保使用 Poetry 運行
+poetry run python main_parallel.py
 ```
 
 ### Q2: API Key 錯誤
@@ -239,12 +255,12 @@ curl http://localhost:8000/api/health
 
 **立即嘗試**：
 ```bash
-python3 main_parallel.py
+poetry run python main_parallel.py
 ```
 
 **或使用 Web 界面**：
 ```bash
-python3 web_api.py &
+poetry run python web_api.py &
 open web/index.html
 ```
 

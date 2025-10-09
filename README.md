@@ -16,31 +16,53 @@
 
 ## 🚀 快速開始
 
-### 方法 1: 一鍵測試（推薦）
+### 方法 1: 一鍵啟動（最簡單）
 
 ```bash
-# 自動激活虛擬環境並運行測試
-bash README_ALL/BASH_ALL/quick_test.sh
+# 1. 設定 API Key
+cp .env.example .env
+nano .env  # 編輯並添加你的 OPENAI_API_KEY
+
+# 2. 運行（自動安裝依賴）
+bash README_ALL/BASH_ALL/poetry_run.sh test    # 運行主程序
+bash README_ALL/BASH_ALL/poetry_run.sh web     # 啟動 Web API
+bash README_ALL/BASH_ALL/poetry_run.sh shell   # 進入 Poetry Shell
 ```
 
-### 方法 2: 手動步驟
+### 方法 2: 使用 Poetry（推薦）
 
 ```bash
-# 1. 清理並安裝依賴到虛擬環境
-bash README_ALL/BASH_ALL/cleanup_and_reinstall.sh
+# 1. 安裝依賴（自動管理虛擬環境）
+poetry install
 
-# 2. 激活虛擬環境
-source .venv/bin/activate
+# 2. 設定 API Key
+export OPENAI_API_KEY="your-api-key-here"
+
+# 3. 運行系統
+poetry run python main_parallel.py
+
+# 或進入 Poetry Shell
+poetry shell
+python main_parallel.py
+```
+
+### 方法 3: 使用傳統 venv（不推薦）
+
+⚠️ **注意**：由於 PEP 668 限制，建議使用 Poetry（方法 1 或 2）
+
+```bash
+# 1. 創建虛擬環境
+python3 -m venv venv
+source venv/bin/activate
+
+# 2. 安裝依賴
+pip install -r requirements.txt
 
 # 3. 設定 API Key
 export OPENAI_API_KEY="your-api-key-here"
 
-# 4. 運行測試
-python3 main_parallel.py
-
-# 5. 或啟動 Web API
-python3 web_api.py
-# 訪問 http://localhost:8000/docs
+# 4. 運行系統
+python main_parallel.py
 ```
 
 ---
@@ -107,32 +129,37 @@ test_Time_RAG_stream/
 ### 環境管理
 
 ```bash
-# 激活虛擬環境
-source .venv/bin/activate
+# 安裝/更新依賴
+poetry install
 
-# 退出虛擬環境
-deactivate
+# 進入 Poetry Shell
+poetry shell
 
-# 重新安裝依賴
-bash README_ALL/BASH_ALL/cleanup_and_reinstall.sh
+# 退出 Poetry Shell
+exit
+
+# 更新套件
+poetry update
+
+# 查看已安裝的套件
+poetry show
 ```
 
-### 運行程序（需先激活虛擬環境）
+### 運行程序
 
 ```bash
-# 快速測試（自動激活虛擬環境）
-bash README_ALL/BASH_ALL/quick_test.sh
-
 # 運行主程序
-python3 main_parallel.py
+poetry run python main_parallel.py
 
 # 啟動 Web API
-python3 web_api.py
+poetry run python web_api.py
 
 # 清除歷史記錄
-bash README_ALL/BASH_ALL/clear_history.sh
-# 或
-python3 clear_history.py
+poetry run python clear_history.py
+
+# 或進入 Shell 後運行
+poetry shell
+python main_parallel.py
 ```
 
 ---
@@ -143,7 +170,7 @@ python3 clear_history.py
 
 ```bash
 # 1. 啟動後端
-python3 web_api.py
+poetry run python web_api.py
 
 # 2. 打開界面
 open web/index.html
@@ -198,34 +225,39 @@ open web/index.html
 
 ## 📦 安裝
 
-### 推薦方式：使用虛擬環境
+### 推薦方式：使用 Poetry
 
 ```bash
-# 一鍵清理並安裝到虛擬環境
-bash README_ALL/BASH_ALL/cleanup_and_reinstall.sh
+# 1. 安裝 Poetry（如果還沒有）
+curl -sSL https://install.python-poetry.org | python3 -
+# 或
+pip install --user poetry
+
+# 2. 安裝專案依賴
+poetry install
+
+# 3. 運行系統
+poetry run python main_parallel.py
 ```
 
-### 手動安裝
+### 替代方式：使用 venv
 
 ```bash
-# 1. 創建虛擬環境（如果不存在）
+# 1. 創建虛擬環境
 python3 -m venv .venv
 
 # 2. 激活虛擬環境
 source .venv/bin/activate
 
-# 3. 升級 pip
-pip install --upgrade pip
-
-# 4. 安裝依賴
+# 3. 安裝依賴
 pip install -r requirements.txt
 ```
 
 ### ⚠️ 重要提示
 
-- **請使用虛擬環境**，避免污染全局 Python 環境
+- **推薦使用 Poetry**，自動管理虛擬環境和依賴
 - 確保 OpenAI SDK 版本 >= 1.54.0（支持 Responses API）
-- 所有腳本都會自動檢查並激活虛擬環境
+- Poetry 會自動處理依賴衝突和版本管理
 
 ---
 

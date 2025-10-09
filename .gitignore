@@ -6,7 +6,11 @@ __pycache__/
 .Python
 env/
 venv/
+.venv/
 ENV/
+
+# Poetry
+# poetry.lock  # 取消註解以忽略 lock 文件（不推薦）
 build/
 develop-eggs/
 dist/
