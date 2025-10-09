@@ -124,7 +124,9 @@ class ScenarioClassifier:
                     "scenario_number": scenario_id,
                     "dimensions": dimensions_text,  # 返回文字版本（用於顯示）
                     "dimensions_num": dimensions_num,  # 返回數字版本（用於計算）
-                    "description": scenario['description'],
+                    "label": scenario.get('label', ''),
+                    "role": scenario.get('role', ''),
+                    "prompt": scenario.get('prompt', ''),
                     "display_text": self._format_display_text(dimensions_text, scenario_id)
                 }
                 return result
@@ -141,21 +143,15 @@ class ScenarioClassifier:
     
     def _get_default_result(self) -> Dict:
         """獲取默認結果（情境 14）"""
-        scenario = self.get_scenario_by_number(14)
-        if scenario:
-            return {
-                "scenario_number": 14,
-                "dimensions": scenario['dimensions'],
-                "description": scenario['description'],
-                "display_text": self._format_display_text(scenario['dimensions'], 14)
-            }
-        else:
-            return {
-                "scenario_number": 14,
-                "dimensions": {"D1": "一個", "D2": "無錯誤", "D3": "粗略", "D4": "正常狀態"},
-                "description": "一個 + 無錯誤 + 粗略 + 正常狀態",
-                "display_text": "默認情境 14"
-            }
+        scenario = self.get_scenario_by_number(14) or {}
+        return {
+            "scenario_number": 14,
+            "dimensions": {"D1": "一個", "D2": "無錯誤", "D3": "粗略", "D4": "正常狀態"},
+            "label": scenario.get('label', '一個知識點&無錯誤&粗略&正常'),
+            "role": scenario.get('role', '基礎講解'),
+            "prompt": scenario.get('prompt', '你是教學講解者。解釋核心定義與關鍵特點。'),
+            "display_text": "情境 14"
+        }
     
     def get_scenario_by_number(self, number: int) -> Optional[Dict]:
         """
@@ -172,90 +168,20 @@ class ScenarioClassifier:
                 return scenario
         return None
     
-    def get_scenario_by_dimensions(self, dimensions: Dict[str, str]) -> Optional[Dict]:
-        """
-        根據四向度獲取情境
-        
-        Args:
-            dimensions: 四向度字典，例如 {"D1": "一個", "D2": "無錯誤", ...}
-            
-        Returns:
-            情境資料
-        """
-        for scenario in self.scenarios_list:
-            if scenario['dimensions'] == dimensions:
-                return scenario
-        return None
     
     def _format_display_text(self, dimensions: Dict[str, str], scenario_number: int) -> str:
-        """
-        格式化顯示文字
-        
-        Args:
-            dimensions: 四向度
-            scenario_number: 情境編號
-            
-        Returns:
-            格式化的文字
-        """
-        d1 = dimensions.get('D1', '未知')
-        d2 = dimensions.get('D2', '未知')
-        d3 = dimensions.get('D3', '未知')
-        d4 = dimensions.get('D4', '未知')
-        
-        text = f"當前情境：D1={d1}, D2={d2}, D3={d3}, D4={d4} → 第 {scenario_number} 種情境"
-        return text
+        """格式化顯示文字"""
+        return f"情境 {scenario_number}"
     
     def list_all_scenarios(self):
         """列出所有情境"""
-        print("\n" + "="*70)
-        print("📚 24 種情境列表")
-        print("="*70)
-        
+        print("\n📚 24 種情境列表")
         for scenario in self.scenarios_list:
-            num = scenario['scenario_number']
-            dims = scenario['dimensions']
-            print(f"\n情境 {num:2d}: {dims['D1']:4s} + {dims['D2']:6s} + {dims['D3']:8s} + {dims['D4']:8s}")
-        
-        print("\n" + "="*70)
-        print(f"總計: {len(self.scenarios_list)} 種情境")
-        print("="*70)
-
-
-# 測試函數
-def test_scenario_classifier():
-    """測試情境分類器"""
-    print("🧪 測試情境分類器\n")
-    
-    classifier = ScenarioClassifier()
-    
-    # 測試 1：列出所有情境
-    print("\n測試 1：列出所有情境")
-    classifier.list_all_scenarios()
-    
-    # 測試 2：判定情境（目前返回固定值）
-    print("\n測試 2：判定情境")
-    print("-" * 70)
-    result = classifier.classify("什麼是機器學習？")
-    print(f"判定結果：{result['display_text']}")
-    print(f"詳細資訊：{result['description']}")
-    
-    # 測試 3：根據編號獲取情境
-    print("\n測試 3：獲取特定情境")
-    print("-" * 70)
-    for num in [1, 12, 24]:
-        scenario = classifier.get_scenario_by_number(num)
-        if scenario:
-            print(f"情境 {num}: {scenario['description']}")
-    
-    # 測試 4：根據四向度獲取情境
-    print("\n測試 4：根據四向度查找情境")
-    print("-" * 70)
-    dims = {"D1": "多個", "D2": "無錯誤", "D3": "非常詳細", "D4": "正常狀態"}
-    scenario = classifier.get_scenario_by_dimensions(dims)
-    if scenario:
-        print(f"找到情境 {scenario['scenario_number']}: {scenario['description']}")
+            print(f"情境 {scenario['scenario_number']:2d}: {scenario.get('label', '')} - {scenario.get('role', '')}")
+        print(f"\n總計: {len(self.scenarios_list)} 種情境")
 
 
 if __name__ == "__main__":
-    test_scenario_classifier()
+    # 簡單測試
+    classifier = ScenarioClassifier()
+    classifier.list_all_scenarios()

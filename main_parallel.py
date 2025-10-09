@@ -176,18 +176,16 @@ class ResponsesRAGSystem:
         scenario_number = scenario_result['scenario_number']
         dimensions = scenario_result['dimensions']
         
-        # 構建情境說明文字（簡單明瞭）
-        scenario_text = f"現在為第 {scenario_number} 種情境，代表 D1={dimensions['D1']}, D2={dimensions['D2']}, D3={dimensions['D3']}, D4={dimensions['D4']}"
+        # 獲取情境提示詞
+        scenario_prompt = scenario_result.get('prompt', '')
+        scenario_label = scenario_result.get('label', '')
         
         # 載入本體論
         ontology_content = self.ontology_manager.get_ontology_content()
         
-        # 構建最終提示詞（簡化版，不使用複雜模板）
+        # 構建最終提示詞（使用情境提示詞）
         final_prompt = f"""
-請回答以下問題。
-
-【當前情境】
-{scenario_text}
+{scenario_prompt}
 
 【RAG 檢索到的教材片段】
 {context}
@@ -201,22 +199,21 @@ class ResponsesRAGSystem:
 【用戶問題】
 {query}
 
-請根據上述資訊生成回答。在回答開頭簡要說明：「{scenario_text}」
-
-**重要：回答限制在 100 字以內。**
+請根據教材內容回答問題。
 """
         
-        print(f"【最終回合】情境：{scenario_text}")
+        print(f"【最終回合】情境：{scenario_label}")
+        print(f"【最終回合】提示：{scenario_prompt}")
         
         # 使用 Responses API 生成最終答案（流式）
         response = self.client.chat.completions.create(
             model=Config.LLM_MODEL,
             messages=[
-                {"role": "system", "content": "你是專業知識助手。回答限制在 100 字以內。"},
+                {"role": "system", "content": "你是專業知識助手。"},
                 {"role": "user", "content": final_prompt}
             ],
             temperature=Config.LLM_TEMPERATURE,
-            max_tokens=200,  # 100 字約 200 tokens
+            max_tokens=Config.LLM_FINAL_MAX_TOKENS,  # 使用配置中的最大 token 數
             stream=True
         )
         
@@ -296,7 +293,9 @@ class ResponsesRAGSystem:
             "query": query,
             "final_answer": final_answer,
             "scenario_number": scenario_result['scenario_number'],
-            "scenario_description": scenario_result['description'],
+            "scenario_label": scenario_result.get('label', ''),
+            "scenario_role": scenario_result.get('role', ''),
+            "scenario_prompt": scenario_result.get('prompt', ''),
             "dimensions": scenario_result['dimensions'],
             "matched_docs": rag_result['matched_docs'],
             "knowledge_points": rag_result['knowledge_points'],
@@ -312,7 +311,8 @@ class ResponsesRAGSystem:
         print("="*70)
         print(f"查詢：{result['query']}")
         print(f"\n🎯 情境判定：第 {result['scenario_number']} 種情境")
-        print(f"   描述：{result['scenario_description']}")
+        print(f"   標籤：{result['scenario_label']}")
+        print(f"   角色：{result['scenario_role']}")
         print(f"\n📐 四向度分析：")
         for dim, value in result['dimensions'].items():
             print(f"   {dim}: {value}")

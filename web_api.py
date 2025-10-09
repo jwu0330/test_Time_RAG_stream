@@ -163,7 +163,8 @@ async def process_query(request: QueryRequest):
         matched_docs = result.get("matched_docs", [])
         final_answer = result.get("final_answer", "抱歉，無法生成回答")
         scenario_number = result.get("scenario_number", 0)
-        scenario_description = result.get("scenario_description", "")
+        scenario_label = result.get("scenario_label", "")
+        scenario_role = result.get("scenario_role", "")
         knowledge_points = result.get("knowledge_points", [])
         
         # 獲取詳細計時報告
@@ -185,7 +186,8 @@ async def process_query(request: QueryRequest):
             "knowledge_points": knowledge_points,
             "scenario": f"第 {scenario_number} 種情境",
             "scenario_number": scenario_number,
-            "scenario_description": scenario_description,
+            "scenario_label": scenario_label,
+            "scenario_role": scenario_role,
             "response_time": backend_total_time,
             "timing_details": {
                 "backend_total": round(backend_total_time, 3),
