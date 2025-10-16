@@ -1,0 +1,18 @@
+TLD 伺服器
+
+TLD 伺服器（Top-Level Domain Server，頂級域伺服器）負責管理特定頂級域的 DNS 資訊，是 DNS 階層架構中的第二層。TLD 伺服器儲存該頂級域下所有二級域名的授權伺服器資訊。
+
+TLD 類型：
+- 通用頂級域（gTLD）：.com、.org、.net、.edu 等
+- 國家代碼頂級域（ccTLD）：.tw、.jp、.uk、.cn 等
+- 新通用頂級域：.app、.dev、.tech、.shop 等
+- 基礎設施頂級域：.arpa（用於反向 DNS）
+
+工作流程：
+當遞迴解析器從根伺服器獲得 TLD 伺服器位址後，向 TLD 伺服器查詢特定域名。例如，查詢 example.com 時，.com TLD 伺服器返回 example.com 的授權伺服器位址。
+
+實際營運範例：
+VeriSign 營運 .com 和 .net TLD 伺服器，管理超過 1.5 億個域名。Public Interest Registry 營運 .org TLD。各國網路資訊中心（NIC）營運各自的 ccTLD，如 TWNIC 管理 .tw。
+
+技術架構：
+TLD 伺服器使用分散式架構，在全球多個位置部署。採用 Anycast 技術提升效能和可靠性。支援 DNSSEC，確保 DNS 資料的完整性和真實性。TLD 伺服器每天處理數百億次查詢，需要極高的效能和穩定性。

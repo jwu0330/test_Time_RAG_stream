@@ -1,24 +1,12 @@
-# 文檔索引
+# 📑 文檔導航索引
 
-**📅 更新日期**: 2025-10-09  
-**📚 文檔版本**: 3.1（Poetry 環境管理）
+**📅 更新日期**: 2025-10-15  
+**🔧 系統版本**: 3.0（K/C/R 三維度分類系統）
 
----
+**歡迎使用 RAG 教學問答系統！**
 
-## 🎯 如何使用本文檔
+這個索引幫助您快速找到需要的文檔。
 
-### 我是新用戶 → 從這裡開始
-
-1. **[01_QUICK_START.md](01_QUICK_START.md)** - 5分鐘快速上手
-2. **[02_INSTALLATION.md](02_INSTALLATION.md)** - 詳細安裝步驟
-3. **[10_SYSTEM_OVERVIEW.md](10_SYSTEM_OVERVIEW.md)** - 了解系統功能
-
-### 我想深入了解系統
-
-4. **[11_SIMPLIFICATION_SUMMARY.md](11_SIMPLIFICATION_SUMMARY.md)** - 系統簡化總結
-5. **[19_THREE_APIS_ARCHITECTURE.md](19_THREE_APIS_ARCHITECTURE.md)** - 三個 API 架構
-6. **[20_FOUR_PARALLEL_ARCHITECTURE.md](20_FOUR_PARALLEL_ARCHITECTURE.md)** - 四個並行分支
-7. 查看 `core/` 目錄中的源代碼了解架構細節
 
 ### 我要使用系統
 
@@ -43,16 +31,9 @@
 
 | 文檔 | 用途 | 閱讀時間 |
 |------|------|---------|
-| **10_SYSTEM_OVERVIEW.md** | 系統完整概述 | 15分鐘 |
-| **11_SIMPLIFICATION_SUMMARY.md** | 系統簡化總結 | 10分鐘 |
+| **10_SYSTEM_OVERVIEW.md** | 系統完整概述（K/C/R三維度） | 15分鐘 |
+| **FINAL_SIMPLIFICATION.md** | K/C/R 架構說明 | 10分鐘 |
 | **16_TROUBLESHOOTING.md** | 故障排除指南 | 15分鐘 |
-| **19_THREE_APIS_ARCHITECTURE.md** | 三個 API 架構說明 | 15分鐘 |
-
-### 第三類：架構說明（20-29）
-
-| 文檔 | 用途 | 閱讀時間 |
-|------|------|---------|
-| **20_FOUR_PARALLEL_ARCHITECTURE.md** | 四個並行分支架構 | 15分鐘 |
 
 ### 第四類：腳本與工具
 
@@ -138,9 +119,9 @@ web/README.md → 啟動並使用
    └─ 完成安裝和運行
 
 2. 10_SYSTEM_OVERVIEW.md（15分鐘）
-   ├─ 了解四向度分類
-   ├─ 了解24種情境
-   └─ 了解雙線程架構
+   ├─ 了解K/C/R三維度分類
+   ├─ 了解12種情境
+   └─ 了解並行處理架構
 
 3. 啟動 Web 界面（10分鐘）
    └─ 實際體驗系統

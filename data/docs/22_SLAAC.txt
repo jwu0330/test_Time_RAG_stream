@@ -1,0 +1,17 @@
+SLAAC
+
+SLAAC（Stateless Address Autoconfiguration，無狀態位址自動配置）是 IPv6 的一項重要特性，允許設備在沒有 DHCP 伺服器的情況下自動配置 IPv6 位址。SLAAC 簡化了 IPv6 網路的部署和管理。
+
+工作原理：
+設備首先產生一個 Link-Local 位址（fe80::/10）。然後發送路由器請求（Router Solicitation）訊息，或等待路由器通告（Router Advertisement）。路由器通告包含網路前綴資訊，設備結合前綴和自己的介面 ID（通常由 MAC 位址生成）形成完整的 Global Unicast 位址。
+
+位址生成方法：
+- EUI-64：基於 MAC 位址生成介面 ID，可預測但有隱私疑慮
+- 隱私擴展（Privacy Extensions）：產生隨機的臨時位址，定期更換
+- 穩定隱私位址：結合網路前綴和設備識別碼產生穩定但不可預測的位址
+
+實際應用場景：
+家用 IPv6 網路通常使用 SLAAC，設備即插即用無需配置。企業網路可能結合 SLAAC 和 DHCPv6，SLAAC 提供位址，DHCPv6 提供 DNS 等其他配置。
+
+技術優勢：
+無需維護 DHCP 伺服器和位址池，降低管理成本。設備可以同時擁有多個 IPv6 位址（Link-Local、Global Unicast、臨時位址），提供更大的靈活性。

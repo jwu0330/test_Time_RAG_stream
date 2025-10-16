@@ -46,7 +46,7 @@ file:///home/jim/code/python/test_Time_RAG_stream/web/index.html
 ## ✨ 功能特色
 
 - ✅ 即時對話界面
-- ✅ 四向度分類顯示
+- ✅ K/C/R 三維度分類顯示
 - ✅ 響應時間統計
 - ✅ 範例問題快速開始
 - ✅ 側邊欄系統資訊

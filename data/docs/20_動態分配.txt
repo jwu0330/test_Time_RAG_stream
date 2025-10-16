@@ -1,0 +1,20 @@
+動態分配
+
+動態分配（Dynamic Allocation）是指網路設備在連接網路時自動獲得 IP 位址的方式，無需手動配置。這種方式大幅簡化了網路管理，特別適合大量終端用戶設備和經常變動的網路環境。
+
+主要技術：
+- DHCP（Dynamic Host Configuration Protocol）：IPv4 和 IPv6 都支援
+- SLAAC（Stateless Address Autoconfiguration）：IPv6 專用
+- DHCPv6：IPv6 的 DHCP 版本，提供更多控制選項
+
+工作流程（DHCP）：
+1. 設備廣播 DHCP Discover 訊息尋找 DHCP 伺服器
+2. 伺服器回應 DHCP Offer 提供可用位址
+3. 設備發送 DHCP Request 請求該位址
+4. 伺服器確認並發送 DHCP Ack，完成分配
+
+實際應用優勢：
+辦公室員工攜帶筆電到不同會議室，自動獲得適當的網路配置。訪客連接 Wi-Fi 時無需 IT 人員協助。設備更換或重新配置時不需要手動更新 IP 設定。
+
+租約管理：
+動態分配的位址有租約期限（通常幾小時到幾天），到期前設備會自動續約。這允許伺服器回收長期離線設備的位址。DHCP 伺服器可以配置保留位址，為特定 MAC 位址分配固定 IP，結合靜態和動態的優點。

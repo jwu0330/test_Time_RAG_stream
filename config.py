@@ -6,6 +6,28 @@
 class Config:
     """系統配置類"""
     
+    # ==================== 共享 OpenAI Client ====================
+    
+    _openai_client = None
+    
+    @classmethod
+    def get_openai_client(cls, api_key: str = None):
+        """
+        獲取共享的 OpenAI client（單例模式）
+        
+        Args:
+            api_key: OpenAI API Key（可選）
+            
+        Returns:
+            OpenAI client 實例
+        """
+        if cls._openai_client is None:
+            from openai import OpenAI
+            print("⚙️ 初始化共享 OpenAI client...")
+            cls._openai_client = OpenAI(api_key=api_key) if api_key else OpenAI()
+            print("✅ OpenAI client 初始化完成")
+        return cls._openai_client
+    
     # ==================== 模型配置 ====================
     
     # Embedding 模型
@@ -16,10 +38,34 @@ class Config:
     # 選項: "gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4o-mini"
     LLM_MODEL = "gpt-4o-mini"
     
-    # 情境分類模型（用於四向度判定）
+    # 情境分類模型（用於 K/C/R 三維度判定）
     # 選項: "gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o-mini"
     # 使用 gpt-4o-mini 獲得更快的響應速度
     CLASSIFIER_MODEL = "gpt-4o-mini"
+    
+    @classmethod
+    def verify_model_config(cls):
+        """驗證模型配置並打印"""
+        print(f"\n{'='*60}")
+        print(f"🤖 模型配置驗證")
+        print(f"{'='*60}")
+        print(f"  Embedding 模型: {cls.EMBEDDING_MODEL}")
+        print(f"  主要 LLM 模型: {cls.LLM_MODEL}")
+        print(f"  分類器模型: {cls.CLASSIFIER_MODEL}")
+        print(f"{'='*60}")
+        
+        # 驗證是否使用 gpt-4o-mini
+        if cls.CLASSIFIER_MODEL != "gpt-4o-mini":
+            print(f"⚠️  警告：分類器模型不是 gpt-4o-mini，可能影響效能")
+        else:
+            print(f"✅ 分類器模型已正確設定為 gpt-4o-mini")
+        
+        if cls.LLM_MODEL != "gpt-4o-mini":
+            print(f"⚠️  警告：主要 LLM 模型不是 gpt-4o-mini")
+        else:
+            print(f"✅ 主要 LLM 模型已正確設定為 gpt-4o-mini")
+        
+        print(f"{'='*60}\n")
     
     # ==================== 系統參數 ====================
     
@@ -36,7 +82,7 @@ class Config:
     # LLM 生成參數
     LLM_TEMPERATURE = 0.7  # 溫度參數（0-1，越高越隨機）
     LLM_MAX_TOKENS = 500  # 草稿最大 token 數
-    LLM_FINAL_MAX_TOKENS = 1000  # 最終答案最大 token 數
+    LLM_FINAL_MAX_TOKENS = 200  # 最終答案最大 token 數（測試環境：約100字）
     
     # ==================== 儲存路徑 ====================
     
@@ -55,39 +101,76 @@ class Config:
     # 情境目錄
     SCENARIOS_DIR = "data/scenarios"
     
-    # ==================== 四向度定義 ====================
+    # ==================== 三維度定義 ====================
     
     DIMENSIONS = {
-        "D1": {
+        "K": {
             "name": "知識點數量",
             "description": "這句話牽涉到的知識點數量",
             "values": ["零個", "一個", "多個"]
         },
-        "D2": {
-            "name": "表達錯誤",
-            "description": "這句話的表達是否有錯誤",
-            "values": ["有錯誤", "無錯誤"]
+        "C": {
+            "name": "正確性",
+            "description": "這句話的表達是否正確",
+            "values": ["正確", "不正確"]
         },
-        "D3": {
-            "name": "表達詳細度",
-            "description": "這句話的表達是否詳細",
-            "values": ["粗略", "非常詳細"]
-        },
-        "D4": {
-            "name": "重複詢問",
+        "R": {
+            "name": "重複性",
             "description": "是否在同一知識點上重複詢問多次",
-            "values": ["重複狀態", "正常狀態"],
+            "values": ["正常", "重複"],
             "threshold": REPETITION_THRESHOLD
         }
     }
     
     # ==================== 知識點映射 ====================
     
-    # 文件到知識點的映射（根據您上傳的 3 份文件）
+    # 文件到知識點的映射（IP 網路相關知識點）
     KNOWLEDGE_POINTS = {
-        "ml_basics.txt": "機器學習基礎",
-        "deep_learning.txt": "深度學習",
-        "nlp_intro.txt": "自然語言處理"
+        "01_IP位址.txt": "IP 位址",
+        "02_IPv4.txt": "IPv4",
+        "03_IPv6.txt": "IPv6",
+        "04_多播位址.txt": "多播位址",
+        "05_任播位址.txt": "任播位址",
+        "06_廣播位址.txt": "廣播位址",
+        "07_回送位址.txt": "回送位址",
+        "08_公有位址.txt": "公有位址",
+        "09_私有位址.txt": "私有位址",
+        "10_Link-Local.txt": "Link-Local",
+        "11_Global_Unicast.txt": "Global Unicast",
+        "12_位址對映.txt": "位址對映",
+        "13_Dual_Stack.txt": "Dual Stack",
+        "14_CGNAT.txt": "CGNAT",
+        "15_NAT.txt": "NAT",
+        "16_PAT_NAPT.txt": "PAT / NAPT",
+        "17_NAT64_DNS64.txt": "NAT64 / DNS64",
+        "18_位址分配方式.txt": "位址分配方式",
+        "19_靜態分配.txt": "靜態分配",
+        "20_動態分配.txt": "動態分配",
+        "21_DHCP.txt": "DHCP",
+        "22_SLAAC.txt": "SLAAC",
+        "23_Router_Advertisement.txt": "Router Advertisement (RA)",
+        "24_子網劃分.txt": "子網劃分",
+        "25_子網遮罩.txt": "子網遮罩",
+        "26_超網.txt": "超網",
+        "27_CIDR.txt": "CIDR",
+        "28_VLSM.txt": "VLSM",
+        "29_DNS.txt": "DNS",
+        "30_DNS伺服.txt": "DNS 伺服",
+        "31_DNS快取.txt": "DNS 快取",
+        "32_遞迴解析.txt": "遞迴解析",
+        "33_根伺服器.txt": "根伺服器",
+        "34_TLD伺服器.txt": "TLD 伺服器",
+        "35_授權伺服器.txt": "授權伺服器",
+        "36_區域類型.txt": "區域類型",
+        "37_A記錄.txt": "A 記錄",
+        "38_AAAA記錄.txt": "AAAA 記錄",
+        "39_NS記錄.txt": "NS 記錄",
+        "40_MX記錄.txt": "MX 記錄",
+        "41_CNAME記錄.txt": "CNAME 記錄",
+        "42_Mail_Server.txt": "Mail Server",
+        "43_另一網域名稱.txt": "另一網域名稱",
+        "44_網路位址轉譯.txt": "網路位址轉譯",
+        "45_IP位址管理.txt": "IP 位址管理"
     }
     
     # ==================== Web 界面配置 ====================
@@ -105,6 +188,11 @@ class Config:
 
 # 創建全局配置實例
 config = Config()
+
+# 便捷函數
+def get_shared_client(api_key: str = None):
+    """獲取共享的 OpenAI client"""
+    return Config.get_openai_client(api_key)
 
 
 def update_config(**kwargs):

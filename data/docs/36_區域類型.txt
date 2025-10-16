@@ -1,0 +1,18 @@
+區域類型
+
+區域類型（Zone Types）是 DNS 伺服器中不同的區域配置方式，定義了伺服器如何儲存和管理 DNS 記錄。選擇適當的區域類型對 DNS 架構的效能、可靠性和管理便利性至關重要。
+
+主要區域類型：
+- 主要區域（Primary Zone）：記錄的原始來源，可以直接編輯
+- 次要區域（Secondary Zone）：從主要區域複製記錄，唯讀
+- 存根區域（Stub Zone）：只包含 NS 記錄，用於委派
+- 轉發區域（Forward Zone）：將查詢轉發到其他伺服器
+
+正向與反向區域：
+正向區域（Forward Lookup Zone）將域名解析為 IP 位址，如 example.com → 93.184.216.34。反向區域（Reverse Lookup Zone）將 IP 位址解析為域名，使用 in-addr.arpa 域，如 34.216.184.93.in-addr.arpa → example.com。
+
+實際應用範例：
+企業內部 DNS 伺服器配置 company.local 主要區域，管理內部域名。配置 company.com 次要區域，從外部授權伺服器同步記錄。配置反向區域用於郵件伺服器驗證和日誌記錄。
+
+區域傳輸：
+次要區域透過 AXFR（完整區域傳輸）或 IXFR（增量區域傳輸）從主要區域同步記錄。SOA 記錄的序號（Serial Number）用於判斷是否需要更新。傳輸通常使用 TCP 埠 53，並應實施存取控制限制傳輸來源。

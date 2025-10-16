@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAPIStatus();
     setupInputHandlers();
     loadChatHistory(); // 載入歷史對話
+    loadKnowledgeCount();
 });
 
 // 檢查 API 狀態
@@ -210,6 +211,19 @@ function updateStats(responseTime) {
     `;
 }
 
+// 載入知識點總數
+async function loadKnowledgeCount() {
+    try {
+        const res = await fetch(`${API_BASE}/api/knowledge/count`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const countEl = document.getElementById('knowledgeCount');
+        if (countEl) countEl.textContent = data.count;
+    } catch (e) {
+        console.warn('讀取知識點數量失敗:', e);
+    }
+}
+
 // 保存對話歷史到 localStorage
 function saveChatHistory() {
     try {
@@ -282,20 +296,20 @@ function clearChat() {
         messagesDiv.innerHTML = `
             <div class="welcome-message">
                 <h2>👋 歡迎使用 RAG 流式系統</h2>
-                <p>我可以回答關於機器學習、深度學習和自然語言處理的問題</p>
+                <p>我可以回答關於 IP 位址、網路協定和 DNS 系統的問題</p>
                 
                 <div class="example-queries">
-                    <div class="example-query" onclick="sendExample('什麼是機器學習？')">
+                    <div class="example-query" onclick="sendExample('什麼是 IPv4 和 IPv6？')">
                         <strong>💡 基礎問題</strong>
-                        什麼是機器學習？
+                        什麼是 IPv4 和 IPv6？
                     </div>
-                    <div class="example-query" onclick="sendExample('深度學習和機器學習有什麼不同？')">
+                    <div class="example-query" onclick="sendExample('NAT 和 PAT 有什麼不同？')">
                         <strong>🔍 比較問題</strong>
-                        深度學習和機器學習有什麼不同？
+                        NAT 和 PAT 有什麼不同？
                     </div>
-                    <div class="example-query" onclick="sendExample('請詳細解釋 Transformer 架構')">
+                    <div class="example-query" onclick="sendExample('請說明 DNS 解析的完整流程')">
                         <strong>📖 深入問題</strong>
-                        請詳細解釋 Transformer 架構
+                        請說明 DNS 解析的完整流程
                     </div>
                 </div>
             </div>
@@ -322,10 +336,9 @@ function addMessageToDOM(type, content, meta = null) {
     if (meta) {
         const dimensionsHTML = meta.dimensions ? `
             <div class="dimensions">
-                <span class="badge badge-primary">D1: ${meta.dimensions.D1 || '未知'}</span>
-                <span class="badge badge-primary">D2: ${meta.dimensions.D2 || '未知'}</span>
-                <span class="badge badge-primary">D3: ${meta.dimensions.D3 || '未知'}</span>
-                <span class="badge badge-primary">D4: ${meta.dimensions.D4 || '未知'}</span>
+                <span class="badge badge-primary">K: ${meta.dimensions.K !== undefined ? meta.dimensions.K : '未知'}</span>
+                <span class="badge badge-success">C: ${meta.dimensions.C !== undefined ? meta.dimensions.C : '未知'}</span>
+                <span class="badge badge-warning">R: ${meta.dimensions.R !== undefined ? meta.dimensions.R : '未知'}</span>
             </div>
         ` : '';
 

@@ -12,10 +12,11 @@ def verify_imports():
     
     # 測試核心模組
     tests = [
-        ("main_parallel", "ParallelRAGSystem"),
+        ("main_parallel", "ResponsesRAGSystem"),
         ("core.vector_store", "VectorStore"),
         ("core.rag_module", "RAGRetriever"),
         ("core.scenario_classifier", "ScenarioClassifier"),
+        ("core.dimension_classifier", "DimensionClassifier"),
         ("core.ontology_manager", "OntologyManager"),
         ("core.history_manager", "HistoryManager"),
         ("config", "Config"),
@@ -55,8 +56,12 @@ def verify_files():
         "web_api.py",
         "config.py",
         "core/scenario_classifier.py",
+        "core/dimension_classifier.py",
         "core/ontology_manager.py",
-        "data/scenarios/scenarios_24.json",
+        "core/tools/knowledge_detector.py",
+        "core/tools/correctness_detector.py",
+        "core/tools/repetition_checker.py",
+        "data/scenarios/scenarios_12.json",
         "data/ontology/knowledge_ontology.txt",
     ]
     

@@ -1,0 +1,18 @@
+DHCP
+
+DHCP（Dynamic Host Configuration Protocol，動態主機配置協定）是一種網路管理協定，用於自動分配 IP 位址和其他網路配置參數給網路設備。DHCP 大幅簡化了網路管理，是現代網路的基礎服務之一。
+
+DHCP 四步驟流程（DORA）：
+1. Discover：客戶端廣播尋找 DHCP 伺服器
+2. Offer：伺服器提供可用的 IP 位址和配置
+3. Request：客戶端請求使用該位址
+4. Acknowledge：伺服器確認並完成分配
+
+分配的資訊：
+除了 IP 位址和子網遮罩，DHCP 還可以提供預設閘道、DNS 伺服器、NTP 伺服器、TFTP 伺服器等配置。這些選項（Options）讓設備能夠完整地加入網路並存取各種服務。
+
+實際部署範例：
+家用路由器內建 DHCP 伺服器，為連接的設備分配 192.168.1.100-200 範圍的位址。企業網路在核心交換機或專用伺服器上運行 DHCP 服務，為不同 VLAN 提供不同的位址池。
+
+進階功能：
+DHCP Relay 允許跨子網提供 DHCP 服務。DHCP Snooping 防止惡意 DHCP 伺服器。位址保留（Reservation）為特定 MAC 位址分配固定 IP。租約時間可以根據網路特性調整，行動設備通常使用較短租約。

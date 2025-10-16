@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "rag-stream-system"
-version = "1.0.0"
-description = "RAG 流式中斷與續寫系統"
+name = "rag-teaching-system"
+version = "2.0.0"
+description = "RAG 教學問答系統 - K/C/R 三維度分類 + 12 種情境"
 authors = ["Jim"]
 readme = "README.md"
 package-mode = false
@@ -15,6 +15,7 @@ fastapi = ">=0.118.02"
 
 uvicorn = {extras = ["standard"], version = ">=0.24.0"}
 pydantic = ">=2.0.0"
+sentence-transformers = "^5.1.1"
 
 [build-system]
 requires = ["poetry-core"]

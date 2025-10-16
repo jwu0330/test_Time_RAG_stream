@@ -1,13 +1,12 @@
 """
 時間測量工具模組
 用於精準記錄各階段執行時間
-支援四個並行分支獨立計時：
+支援並行分支獨立計時：
 - Thread A: RAG 檢索
-- Thread C: D2 表達錯誤判定 (API)
-- Thread D: D3 表達詳細度判定 (API)
-- Thread E: D4 知識點檢測 (API)
+- Thread C: C值檢測 (正確性判定 API)
+- Thread E: 知識點檢測 (API)
 
-注：D1 不再是獨立線程，改為從 D4 的二進制編碼本地計算
+注：K值和R值為本地計算，幾乎無延遲
 """
 import time
 from typing import Dict, List, Optional
@@ -86,15 +85,15 @@ class TimerReport:
 
 
 class Timer:
-    """計時器管理類 - 支援四個並行分支獨立計時（Thread A, C, D, E）"""
+    """計時器管理類 - 支援並行分支獨立計時（Thread A, C, E）"""
     
     def __init__(self):
         self.records: Dict[str, TimerRecord] = {}
         self.thread_a_records: Dict[str, TimerRecord] = {}  # Thread A: RAG 檢索
-        self.thread_b_records: Dict[str, TimerRecord] = {}  # Thread B: 保留（不再使用）
-        self.thread_c_records: Dict[str, TimerRecord] = {}  # Thread C: D2 判定
-        self.thread_d_records: Dict[str, TimerRecord] = {}  # Thread D: D3 判定
-        self.thread_e_records: Dict[str, TimerRecord] = {}  # Thread E: D4 判定
+        self.thread_b_records: Dict[str, TimerRecord] = {}  # Thread B: 保留（向後兼容）
+        self.thread_c_records: Dict[str, TimerRecord] = {}  # Thread C: C值判定
+        self.thread_d_records: Dict[str, TimerRecord] = {}  # Thread D: 保留（向後兼容）
+        self.thread_e_records: Dict[str, TimerRecord] = {}  # Thread E: 知識點檢測
         self.start_time = time.perf_counter()
     
     def start_stage(self, stage_name: str, thread: Optional[str] = None):
@@ -181,20 +180,9 @@ class Timer:
             thread_a_report.total_time = round(thread_a_total, 3)
             report.thread_a_report = thread_a_report
         
-        # Thread B 報告（不再使用，D1 改為本地計算）
-        # if self.thread_b_records:
-        #     thread_b_report = ThreadTimingReport(thread_name="Thread B（D1 知識點數量）")
-        #     thread_b_total = 0.0
-        #     for name, record in self.thread_b_records.items():
-        #         duration = round(record.duration, 3)
-        #         thread_b_report.stages[name] = duration
-        #         thread_b_total += duration
-        #     thread_b_report.total_time = round(thread_b_total, 3)
-        #     report.thread_b_report = thread_b_report
-        
-        # Thread C 報告（D2 判定）
+        # Thread C 報告（C值判定）
         if self.thread_c_records:
-            thread_c_report = ThreadTimingReport(thread_name="Thread C（D2 表達錯誤）")
+            thread_c_report = ThreadTimingReport(thread_name="Thread C（C值檢測 - 正確性）")
             thread_c_total = 0.0
             for name, record in self.thread_c_records.items():
                 duration = round(record.duration, 3)
@@ -203,20 +191,9 @@ class Timer:
             thread_c_report.total_time = round(thread_c_total, 3)
             report.thread_c_report = thread_c_report
         
-        # Thread D 報告（D3 判定）
-        if self.thread_d_records:
-            thread_d_report = ThreadTimingReport(thread_name="Thread D（D3 表達詳細度）")
-            thread_d_total = 0.0
-            for name, record in self.thread_d_records.items():
-                duration = round(record.duration, 3)
-                thread_d_report.stages[name] = duration
-                thread_d_total += duration
-            thread_d_report.total_time = round(thread_d_total, 3)
-            report.thread_d_report = thread_d_report
-        
-        # Thread E 報告（D4 判定）
+        # Thread E 報告（知識點檢測）
         if self.thread_e_records:
-            thread_e_report = ThreadTimingReport(thread_name="Thread E（D4 重複詢問）")
+            thread_e_report = ThreadTimingReport(thread_name="Thread E（知識點檢測）")
             thread_e_total = 0.0
             for name, record in self.thread_e_records.items():
                 duration = round(record.duration, 3)
@@ -232,7 +209,7 @@ class Timer:
         """打印報告"""
         report = self.get_report()
         print("\n" + "="*70)
-        print("⏱️  時間分析報告（四個並行分支 + RAG）")
+        print("⏱️  時間分析報告（並行處理）")
         print("="*70)
         
         # 主流程
@@ -253,16 +230,7 @@ class Timer:
             print(f"  {'小計':35s}: {report.thread_a_report.total_time:6.3f}s")
             parallel_times.append(report.thread_a_report.total_time)
         
-        # Thread B（不再使用，D1 改為本地計算）
-        # if report.thread_b_report:
-        #     print(f"\n【{report.thread_b_report.thread_name}】")
-        #     for stage, duration in report.thread_b_report.stages.items():
-        #         print(f"  {stage:35s}: {duration:6.3f}s")
-        #     print(f"  {'─' * 45}")
-        #     print(f"  {'小計':35s}: {report.thread_b_report.total_time:6.3f}s")
-        #     parallel_times.append(report.thread_b_report.total_time)
-        
-        # Thread C（D2 判定）
+        # Thread C（C值判定）
         if report.thread_c_report:
             print(f"\n【{report.thread_c_report.thread_name}】")
             for stage, duration in report.thread_c_report.stages.items():
@@ -271,16 +239,7 @@ class Timer:
             print(f"  {'小計':35s}: {report.thread_c_report.total_time:6.3f}s")
             parallel_times.append(report.thread_c_report.total_time)
         
-        # Thread D（D3 判定）
-        if report.thread_d_report:
-            print(f"\n【{report.thread_d_report.thread_name}】")
-            for stage, duration in report.thread_d_report.stages.items():
-                print(f"  {stage:35s}: {duration:6.3f}s")
-            print(f"  {'─' * 45}")
-            print(f"  {'小計':35s}: {report.thread_d_report.total_time:6.3f}s")
-            parallel_times.append(report.thread_d_report.total_time)
-        
-        # Thread E（D4 判定）
+        # Thread E（知識點檢測）
         if report.thread_e_report:
             print(f"\n【{report.thread_e_report.thread_name}】")
             for stage, duration in report.thread_e_report.stages.items():

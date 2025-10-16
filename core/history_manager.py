@@ -20,7 +20,6 @@ class HistoryRecord:
     knowledge_points: List[str]
     dimensions: Dict[str, str]
     timestamp: str
-    knowledge_binary: str = "0000"  # 二進制編碼
     
     def to_dict(self) -> dict:
         """轉換為字典"""
@@ -29,8 +28,7 @@ class HistoryRecord:
             "matched_docs": self.matched_docs,
             "knowledge_points": self.knowledge_points,
             "dimensions": self.dimensions,
-            "timestamp": self.timestamp,
-            "knowledge_binary": self.knowledge_binary
+            "timestamp": self.timestamp
         }
     
     @classmethod
@@ -41,8 +39,7 @@ class HistoryRecord:
             matched_docs=data["matched_docs"],
             knowledge_points=data["knowledge_points"],
             dimensions=data["dimensions"],
-            timestamp=data["timestamp"],
-            knowledge_binary=data.get("knowledge_binary", "0000")
+            timestamp=data["timestamp"]
         )
 
 
@@ -69,9 +66,6 @@ class HistoryManager:
         # 連續訪問追蹤（用於檢測重複）
         self.consecutive_access: deque = deque(maxlen=10)
         
-        # 二進制歷史紀錄（最多10筆）
-        self.binary_history: deque = deque(maxlen=10)
-        
         # 載入已存在的歷史
         self.load()
     
@@ -80,7 +74,7 @@ class HistoryManager:
         query: str,
         matched_docs: List[str],
         dimensions: Dict[str, str],
-        knowledge_binary: str = "0000"
+        knowledge_points: List[str] = None
     ) -> HistoryRecord:
         """
         添加查詢記錄
@@ -88,14 +82,15 @@ class HistoryManager:
         Args:
             query: 查詢內容
             matched_docs: 匹配的文件列表
-            dimensions: 四向度判定結果
-            knowledge_binary: 二進制編碼（從 D4 API 獲得）
+            dimensions: 三維度判定結果（K/C/R）
+            knowledge_points: 知識點名稱列表
             
         Returns:
             HistoryRecord: 創建的歷史記錄
         """
-        # 從匹配的文件中提取知識點
-        knowledge_points = self._extract_knowledge_points(matched_docs)
+        # 使用傳入的知識點，如果沒有則從匹配的文件中提取
+        if knowledge_points is None:
+            knowledge_points = self._extract_knowledge_points(matched_docs)
         
         # 創建歷史記錄
         record = HistoryRecord(
@@ -103,17 +98,11 @@ class HistoryManager:
             matched_docs=matched_docs,
             knowledge_points=knowledge_points,
             dimensions=dimensions,
-            timestamp=datetime.now().isoformat(),
-            knowledge_binary=knowledge_binary
+            timestamp=datetime.now().isoformat()
         )
         
         # 添加到歷史
         self.history.append(record)
-        
-        # 添加到二進制歷史（使用 test_binary_logic 的函數）
-        from core.binary_logic import add_conversation_record
-        add_conversation_record(list(self.binary_history), knowledge_binary)
-        self.binary_history.append(knowledge_binary)
         
         for kp in knowledge_points:
             self.knowledge_point_counter[kp] += 1
@@ -186,16 +175,15 @@ class HistoryManager:
     
     def get_dimension_stats(self) -> Dict[str, Counter]:
         """
-        獲取四向度統計
+        獲取三維度統計 (K/C/R)
         
         Returns:
-            各向度的值分布統計
+            各維度的值分布統計
         """
         stats = {
-            "D1": Counter(),
-            "D2": Counter(),
-            "D3": Counter(),
-            "D4": Counter()
+            "K": Counter(),
+            "C": Counter(),
+            "R": Counter()
         }
         
         for record in self.history:
@@ -209,7 +197,6 @@ class HistoryManager:
         self.history.clear()
         self.knowledge_point_counter.clear()
         self.consecutive_access.clear()
-        self.binary_history.clear()  # 清空二進制歷史
         self.save()
         print("✅ 歷史記錄已完全清除")
     
@@ -218,8 +205,7 @@ class HistoryManager:
         data = {
             "history": [record.to_dict() for record in self.history],
             "knowledge_point_counter": dict(self.knowledge_point_counter),
-            "consecutive_access": list(self.consecutive_access),
-            "binary_history": list(self.binary_history)  # 儲存二進制歷史
+            "consecutive_access": list(self.consecutive_access)
         }
         
         with open(self.storage_path, 'w', encoding='utf-8') as f:
@@ -251,12 +237,6 @@ class HistoryManager:
             # 載入連續訪問記錄
             self.consecutive_access = deque(
                 data.get("consecutive_access", []),
-                maxlen=10
-            )
-            
-            # 載入二進制歷史
-            self.binary_history = deque(
-                data.get("binary_history", []),
                 maxlen=10
             )
             
@@ -296,12 +276,13 @@ class HistoryManager:
         for kp, count in summary['knowledge_points'].items():
             print(f"  {kp}: {count} 次")
         
-        print("\n四向度分布:")
+        print("\n三維度分布 (K/C/R):")
         for dim, stats in summary['dimension_stats'].items():
-            dim_name = Config.DIMENSIONS[dim]['name']
-            print(f"  {dim} ({dim_name}):")
-            for value, count in stats.items():
-                print(f"    {value}: {count} 次")
+            if dim in Config.DIMENSIONS:
+                dim_name = Config.DIMENSIONS[dim]['name']
+                print(f"  {dim} ({dim_name}):")
+                for value, count in stats.items():
+                    print(f"    {value}: {count} 次")
         
         print("\n最近訪問的知識點:")
         print(f"  {' → '.join(summary['recent_access'])}")

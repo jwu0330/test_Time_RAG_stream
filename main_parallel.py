@@ -1,7 +1,7 @@
 """
-主程序 - 使用 Responses API 的雙回合流程
+主程序 - 雙回合流程
 實現：
-1. 判定回合：並行執行 RAG 檢索 + Responses API function call（返回情境編號）
+1. 判定回合：並行執行 RAG 檢索 + K/C/R 維度判定（返回情境編號）
 2. 最終回合：告訴 AI 當前情境，結合 RAG + 本體論，生成流式答案
 """
 import asyncio
@@ -18,7 +18,7 @@ from core.scenario_classifier import ScenarioClassifier
 from core.ontology_manager import OntologyManager
 from core.history_manager import HistoryManager
 from core.timer_utils import Timer
-from config import Config
+from config import Config, get_shared_client
 
 
 class ResponsesRAGSystem:
@@ -32,7 +32,8 @@ class ResponsesRAGSystem:
             api_key: OpenAI API Key
         """
         self.api_key = api_key
-        self.client = OpenAI(api_key=api_key) if api_key else OpenAI()
+        # 使用共享的 OpenAI client
+        self.client = get_shared_client(api_key)
         
         # 初始化各模組
         self.vector_store = VectorStore(api_key=api_key)
@@ -48,7 +49,7 @@ class ResponsesRAGSystem:
         # 將計時器注入到 scenario_classifier
         self.scenario_classifier.set_timer(self.timer)
         
-        print("🚀 Responses API 雙回合 RAG 系統已初始化（五個並行分支）")
+        print("🚀 RAG 系統已初始化（K, C, R 三維度分類）")
     
     async def initialize_documents(self, docs_dir: str = None):
         """
@@ -100,7 +101,7 @@ class ResponsesRAGSystem:
     
     async def main_thread_rag(self, query: str) -> Dict:
         """
-        主線（Thread A）：RAG 檢索（不生成草稿）
+        主線（Thread 1）：RAG 檢索（不生成草稿）
         
         Args:
             query: 用戶查詢
@@ -108,6 +109,9 @@ class ResponsesRAGSystem:
         Returns:
             RAG 檢索結果
         """
+        import time
+        t_start = time.perf_counter()
+        
         self.timer.start_stage("RAG檢索", thread='A')
         
         # RAG 檢索
@@ -123,16 +127,27 @@ class ResponsesRAGSystem:
         
         self.timer.stop_stage("RAG檢索", thread='A')
         
+        t_end = time.perf_counter()
+        rag_total_time = t_end - t_start
+        
+        # 獲取 RAG 內部計時
+        rag_timing = getattr(self.rag_retriever, '_last_timing', {})
+        
         return {
             "context": context,
             "matched_docs": matched_doc_ids,
             "knowledge_points": knowledge_points,
-            "retrieved_docs": retrieved_docs
+            "retrieved_docs": retrieved_docs,
+            "timing": {
+                "total": rag_total_time,
+                "embedding_api": rag_timing.get("embedding_api", 0),
+                "similarity_calc": rag_timing.get("similarity_calc", 0)
+            }
         }
     
     async def parallel_dimension_classification(self, query: str, matched_docs: List[str]) -> Dict:
         """
-        並行執行四個向度判定（Thread B, C, D, E）
+        並行執行 K/C/R 三維度判定
         
         Args:
             query: 用戶查詢
@@ -141,12 +156,8 @@ class ResponsesRAGSystem:
         Returns:
             情境判定結果
         """
-        # 獲取歷史對話（只有 D4 需要）
-        history = self.history_manager.get_recent_history(5)
-        history_list = [h.to_dict() for h in history]
-        
-        # 並行執行四個向度判定，傳入 RAG 結果
-        result = await self.scenario_classifier.classify(query, history_list, matched_docs)
+        # 使用 ScenarioClassifier 進行分類
+        result = await self.scenario_classifier.classify(query)
         
         return result
     
@@ -183,26 +194,28 @@ class ResponsesRAGSystem:
         # 載入本體論
         ontology_content = self.ontology_manager.get_ontology_content()
         
-        # 構建最終提示詞（使用情境提示詞）
+        # 構建最終提示詞（加入當前情境編號 + 測試說明）
         final_prompt = f"""
-{scenario_prompt}
+        【當前是第 {scenario_number} 種情境】
 
-【RAG 檢索到的教材片段】
-{context}
+        {scenario_prompt}
 
-【知識本體論】
-{ontology_content}
+        【RAG 檢索到的教材片段】
+        {context}
 
-【匹配的知識點】
-{', '.join(knowledge_points) if knowledge_points else '無'}
+        【知識本體論】
+        {ontology_content}
 
-【用戶問題】
-{query}
+        【匹配的知識點】
+        {', '.join(knowledge_points) if knowledge_points else '無'}
 
-請根據教材內容回答問題。
-"""
+        【用戶問題】
+        {query}
+
+        ⚠️ 注意：這是測試環境，請將回答控制在約 100 字左右，以便測試系統響應時間。請根據教材內容簡潔回答問題。
+        """
         
-        print(f"【最終回合】情境：{scenario_label}")
+        print(f"【最終回合】情境 {scenario_number}：{scenario_label}")
         print(f"【最終回合】提示：{scenario_prompt}")
         
         # 使用 Responses API 生成最終答案（流式）
@@ -233,9 +246,12 @@ class ResponsesRAGSystem:
     
     async def process_query(self, query: str) -> Dict:
         """
-        處理查詢（五個並行分支 + 最終生成）
+        處理查詢（3 個獨立並行執行緒 + 最終生成）
         
-        第一回合：並行執行 RAG 檢索 + 四個向度判定（5個分支）
+        第一回合：並行執行 3 個 API
+          - Thread 1: RAG Embedding
+          - Thread 2: C 值檢測
+          - Thread 3: 知識點檢測
         第二回合：整合結果，生成最終答案
         
         Args:
@@ -248,44 +264,138 @@ class ResponsesRAGSystem:
         print(f"📥 收到查詢: {query}")
         print(f"{'='*70}")
         
-        # 第一回合：真正的並行執行（RAG + 四個向度判定）
-        self.timer.start_stage("並行處理（5個分支）")
+        # 第一回合：並行執行 3 個獨立 API
+        self.timer.start_stage("並行處理")
         
-        # ✅ 真正的並行：同時執行 RAG 和四個向度判定
-        # D4 API 不再依賴 RAG 結果，所以可以完全並行
-        rag_task = self.main_thread_rag(query)
-        scenario_task = self.parallel_dimension_classification(query, None)  # 不傳入 matched_docs
+        import time
         
-        # 等待兩者都完成
-        rag_result, scenario_result = await asyncio.gather(rag_task, scenario_task)
+        # 記錄開始時間
+        t_parallel_start = time.perf_counter()
         
-        self.timer.stop_stage("並行處理（5個分支）")
-        print(f"\n✅ 真正的並行完成：RAG + 四個向度判定同時執行\n")
+        # 3 個獨立的執行緒
+        rag_task = self.main_thread_rag(query)  # Thread 1: RAG
+        
+        t_c_start = time.perf_counter()
+        c_task = self.scenario_classifier.dimension_classifier.correctness_detector.detect(query)  # Thread 2: C值
+        
+        t_k_start = time.perf_counter()
+        knowledge_task = self.scenario_classifier.dimension_classifier.knowledge_detector.detect(query)  # Thread 3: 知識點
+        
+        # 等待 3 個任務都完成
+        rag_result, c_value, knowledge_points = await asyncio.gather(
+            rag_task,
+            c_task,
+            knowledge_task
+        )
+        
+        t_parallel_end = time.perf_counter()
+        parallel_total_time = t_parallel_end - t_parallel_start
+        
+        # 本地計算 K 值和 R 值（不需要 API）
+        t_local_start = time.perf_counter()
+        k_value = self.scenario_classifier.dimension_classifier.knowledge_detector.calculate_k_value(knowledge_points)
+        r_value = self.scenario_classifier.dimension_classifier.repetition_checker.check_and_update(knowledge_points)
+        
+        # 計算情境編號
+        scenario_number = self.scenario_classifier.dimension_classifier.scenario_calculator.calculate(k_value, c_value, r_value)
+        t_local_end = time.perf_counter()
+        local_calc_time = t_local_end - t_local_start
+        
+        # 記錄情境計算完成時間點
+        t_scenario_calc_done = time.perf_counter()
+        
+        # 打印維度分類結果
+        print(f"\n🔍 維度分類結果：")
+        print(f"  K (知識點數量): {k_value} ({['零個', '一個', '多個'][k_value]})")
+        print(f"  C (正確性): {c_value} ({['正確', '不正確'][c_value]})")
+        print(f"  R (重複性): {r_value} ({['正常', '重複'][r_value]})")
+        print(f"  知識點: {knowledge_points if knowledge_points else '無'}")
+        print(f"✅ 計算得出情境編號：{scenario_number}")
+        
+        # 獲取情境詳細信息
+        scenario = self.scenario_classifier.get_scenario_by_number(scenario_number)
+        
+        # 構建 scenario_result
+        scenario_result = {
+            "scenario_number": scenario_number,
+            "dimensions": {
+                "K": k_value,
+                "C": c_value,
+                "R": r_value
+            },
+            "knowledge_points": knowledge_points,
+            "label": scenario.get('label', '') if scenario else '',
+            "role": scenario.get('role', '') if scenario else '',
+            "prompt": scenario.get('prompt', '') if scenario else ''
+        }
+        
+        # 記錄整合準備完成時間
+        t_integration_done = time.perf_counter()
+        integration_time = t_integration_done - t_scenario_calc_done
+        
+        self.timer.stop_stage("並行處理")
+        
+        # 收集所有計時信息
+        rag_timing = rag_result.get("timing", {})
+        c_timing = getattr(self.scenario_classifier.dimension_classifier.correctness_detector, '_last_timing', 0)
+        k_timing = getattr(self.scenario_classifier.dimension_classifier.knowledge_detector, '_last_timing', 0)
         
         # 第二回合：生成答案
         self.timer.start_stage("最終回合生成")
+        t_final_start = time.perf_counter()
         
         final_answer = await self.final_round_generate(rag_result, scenario_result, query)
+        
+        t_final_end = time.perf_counter()
+        final_generation_time = t_final_end - t_final_start
         
         self.timer.stop_stage("最終回合生成")
         self.timer.stop_stage("總流程")
         
-        # 打印詳細計時報告
-        self.timer.print_report()
+        # 打印詳細計時報告（包含並行執行詳情）
+        print(f"\n{'='*70}")
+        print(f"⏱️  詳細時間分析報告（3 個並行執行緒）")
+        print(f"{'='*70}\n")
         
-        # 記錄到歷史（從 scenario_result 獲取所有維度）
+        print(f"【並行執行詳情】")
+        print(f"  Thread 1 - RAG 檢索:")
+        print(f"    ├─ Embedding API 調用: {rag_timing.get('embedding_api', 0):.3f}s")
+        print(f"    ├─ 相似度計算: {rag_timing.get('similarity_calc', 0):.3f}s")
+        print(f"    └─ 總耗時: {rag_timing.get('total', 0):.3f}s")
+        print(f"")
+        print(f"  Thread 2 - C 值檢測:")
+        print(f"    └─ API 調用耗時: {c_timing:.3f}s")
+        print(f"")
+        print(f"  Thread 3 - 知識點檢測:")
+        print(f"    └─ API 調用耗時: {k_timing:.3f}s")
+        print(f"")
+        print(f"  本地計算 (K/R 值):")
+        print(f"    └─ 計算耗時: {local_calc_time:.6f}s")
+        print(f"")
+        print(f"  並行執行總時間: {parallel_total_time:.3f}s")
+        print(f"  理論最大時間: {max(rag_timing.get('total', 0), c_timing, k_timing):.3f}s")
+        print(f"  並行效率: {(1 - parallel_total_time / (rag_timing.get('total', 0) + c_timing + k_timing)) * 100:.1f}%")
+        print(f"")
+        print(f"【後處理階段】")
+        print(f"  情境計算 + 結果整合: {integration_time:.3f}s")
+        print(f"  最終答案生成: {final_generation_time:.3f}s")
+        print(f"  後處理總時間: {integration_time + final_generation_time:.3f}s")
+        print(f"\n{'='*70}\n")
+        
+        # 舊版時間報告已移除，僅保留上方新版「詳細時間分析報告（3 個並行執行緒）」
+        
+        # 記錄到歷史（簡化版，只記錄基本信息）
         dimensions_dict = {
-            "D1": scenario_result['dimensions']['D1'],  # 從 D4 的二進制編碼計算
-            "D2": scenario_result['dimensions']['D2'],
-            "D3": scenario_result['dimensions']['D3'],
-            "D4": scenario_result['dimensions']['D4']
+            "K": scenario_result['dimensions']['K'],
+            "C": scenario_result['dimensions']['C'],
+            "R": scenario_result['dimensions']['R']
         }
         
         self.history_manager.add_query(
             query,
             rag_result['matched_docs'],
             dimensions_dict,
-            scenario_result.get('knowledge_binary', '0000')  # 傳入二進制編碼
+            scenario_result.get('knowledge_points', [])
         )
         
         # ============ 返回結果 ============
@@ -307,15 +417,20 @@ class ResponsesRAGSystem:
     def print_summary(self, result: Dict):
         """打印結果摘要"""
         print("\n" + "="*70)
-        print("📊 Responses API 雙回合處理結果摘要")
+        print("📊 RAG 系統處理結果摘要")
         print("="*70)
         print(f"查詢：{result['query']}")
         print(f"\n🎯 情境判定：第 {result['scenario_number']} 種情境")
         print(f"   標籤：{result['scenario_label']}")
         print(f"   角色：{result['scenario_role']}")
-        print(f"\n📐 四向度分析：")
-        for dim, value in result['dimensions'].items():
-            print(f"   {dim}: {value}")
+        print(f"\n📐 三維度分析：")
+        k_map = {0: "零個", 1: "一個", 2: "多個"}
+        c_map = {0: "正確", 1: "不正確"}
+        r_map = {0: "正常", 1: "重複"}
+        dims = result['dimensions']
+        print(f"   K (知識點數量): {k_map.get(dims['K'], dims['K'])}")
+        print(f"   C (正確性): {c_map.get(dims['C'], dims['C'])}")
+        print(f"   R (重複性): {r_map.get(dims['R'], dims['R'])}")
         print(f"\n📚 匹配知識點：{', '.join(result['knowledge_points']) if result['knowledge_points'] else '無'}")
         print(f"\n⏱️  執行時間分析：")
         time_report = result['time_report']
@@ -349,7 +464,7 @@ class ResponsesRAGSystem:
 async def main():
     """主函數"""
     print("\n" + "="*70)
-    print("🚀 Responses API 雙回合 RAG 系統")
+    print("🚀 RAG 教學問答系統 (K/C/R 三維度分類)")
     print("="*70)
     
     # 初始化系統

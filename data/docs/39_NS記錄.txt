@@ -1,0 +1,22 @@
+NS 記錄
+
+NS 記錄（Name Server Record）指定負責特定域名或子域名的授權 DNS 伺服器。NS 記錄是 DNS 委派機制的核心，定義了 DNS 階層架構中的權威來源。
+
+記錄格式：
+```
+example.com.    86400    IN    NS    ns1.example.com.
+example.com.    86400    IN    NS    ns2.example.com.
+```
+每個域名通常有多個 NS 記錄，指向不同的名稱伺服器，提供冗餘。
+
+工作原理：
+當 DNS 查詢到達父域的伺服器時，父域返回子域的 NS 記錄，指引查詢到正確的授權伺服器。例如，.com TLD 伺服器儲存 example.com 的 NS 記錄，指向 example.com 的授權伺服器。
+
+實際應用範例：
+企業註冊 company.com 後，在註冊商處設定 NS 記錄，指向自己的 DNS 伺服器或託管服務。子域委派：將 blog.company.com 委派給另一組伺服器，在 company.com 區域中添加 blog.company.com 的 NS 記錄。
+
+配置要求：
+每個域名至少需要兩個 NS 記錄，指向不同的伺服器。名稱伺服器應分散在不同的網路和地理位置。NS 記錄指向的伺服器必須是授權伺服器，能夠回答該域名的查詢。
+
+膠水記錄（Glue Records）：
+當 NS 記錄指向的名稱伺服器本身在該域名下時（如 ns1.example.com），需要膠水記錄提供名稱伺服器的 IP 位址，打破循環依賴。

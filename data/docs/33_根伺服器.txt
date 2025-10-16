@@ -1,0 +1,18 @@
+根伺服器
+
+根伺服器（Root Server）是 DNS 階層架構的最頂層，負責指引查詢到適當的頂級域（TLD）伺服器。全球有 13 個邏輯根伺服器，標記為 A 到 M，但實際上由數百台實體伺服器組成，使用 Anycast 技術分散在世界各地。
+
+根伺服器列表：
+- A.ROOT-SERVERS.NET（由 VeriSign 營運）
+- B.ROOT-SERVERS.NET（由 USC-ISI 營運）
+- C.ROOT-SERVERS.NET（由 Cogent 營運）
+- ... 到 M.ROOT-SERVERS.NET
+
+工作原理：
+根伺服器不儲存具體域名的 IP 位址，只儲存 TLD 伺服器的位址資訊。當收到查詢時，根據域名的頂級域（如 .com、.org、.tw）返回對應 TLD 伺服器的位址。
+
+實際查詢範例：
+查詢 www.example.com 時，遞迴解析器首先聯繫根伺服器，詢問 .com 域的 TLD 伺服器位址。根伺服器返回 .com TLD 伺服器列表。解析器接著查詢 TLD 伺服器，獲得 example.com 的授權伺服器位址。
+
+技術特性：
+根伺服器使用 Anycast 部署，全球有超過 1000 個根伺服器實例。查詢會自動路由到最近的伺服器，提升速度和可靠性。根伺服器每天處理數千億次查詢，是網際網路最關鍵的基礎設施之一。根區檔案（Root Zone File）由 IANA 管理，包含所有 TLD 的資訊。

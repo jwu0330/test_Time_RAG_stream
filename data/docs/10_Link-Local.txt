@@ -1,0 +1,15 @@
+Link-Local
+
+Link-Local 位址是一種特殊的自動配置位址，僅在單一網路區段（鏈路）內有效，不能被路由到其他網路。這種位址允許設備在沒有 DHCP 伺服器或手動配置的情況下進行本地通訊。
+
+IPv4 Link-Local 範圍：
+169.254.0.0/16（169.254.1.0 - 169.254.254.255）。當設備無法從 DHCP 獲得位址時，會自動分配一個 Link-Local 位址。Windows 稱此功能為 APIPA（Automatic Private IP Addressing）。
+
+IPv6 Link-Local 範圍：
+fe80::/10，每個啟用 IPv6 的介面都會自動產生一個 Link-Local 位址，通常基於 MAC 位址生成。這個位址用於鄰居探索（Neighbor Discovery）和路由器通告等基本 IPv6 功能。
+
+實際應用：
+在小型工作群組中，當網路設備故障時，電腦仍可使用 Link-Local 位址進行檔案共享和印表機存取。IPv6 路由器使用 Link-Local 位址作為下一跳位址，簡化路由配置。網路診斷工具利用 Link-Local 位址進行本地設備探索和連線測試。
+
+技術限制：
+Link-Local 位址不能用於網際網路通訊，路由器不會轉發這些封包。僅適合同一實體網路或 VLAN 內的設備通訊。

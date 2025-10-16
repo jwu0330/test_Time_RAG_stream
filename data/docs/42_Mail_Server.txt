@@ -1,0 +1,18 @@
+Mail Server
+
+Mail Server（郵件伺服器）是負責發送、接收和儲存電子郵件的伺服器系統。郵件伺服器是企業通訊的核心基礎設施，需要正確的 DNS 配置才能正常運作。
+
+主要組件：
+- MTA（Mail Transfer Agent）：負責郵件傳輸，如 Postfix、Sendmail
+- MDA（Mail Delivery Agent）：將郵件投遞到使用者信箱
+- MUA（Mail User Agent）：使用者端郵件客戶端，如 Outlook、Thunderbird
+- IMAP/POP3 伺服器：提供郵件存取服務
+
+DNS 配置需求：
+MX 記錄指定接收郵件的伺服器。A 或 AAAA 記錄提供郵件伺服器的 IP 位址。PTR 記錄（反向 DNS）驗證伺服器身份，防止被視為垃圾郵件。SPF 記錄授權哪些伺服器可以代表域名發送郵件。DKIM 記錄提供數位簽章驗證。DMARC 記錄定義郵件驗證政策。
+
+實際部署範例：
+企業架設 mail.company.com 郵件伺服器，IP 為 203.0.113.10。配置 MX 記錄指向 mail.company.com。設定 A 記錄 mail.company.com → 203.0.113.10。配置反向 DNS：10.113.0.203.in-addr.arpa → mail.company.com。
+
+安全與可靠性：
+使用 TLS/SSL 加密郵件傳輸（STARTTLS）。實施垃圾郵件過濾和病毒掃描。配置備份 MX 伺服器提供冗餘。定期備份郵件資料。監控郵件佇列和伺服器效能。確保不是開放轉發（Open Relay），防止被濫用發送垃圾郵件。

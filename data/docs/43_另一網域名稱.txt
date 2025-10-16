@@ -1,0 +1,22 @@
+另一網域名稱
+
+另一網域名稱是指透過 DNS 記錄（特別是 CNAME 記錄）將一個域名指向另一個域名的配置方式。這種技術允許多個域名指向同一個資源，或將流量導向不同的服務提供者。
+
+常見應用場景：
+品牌保護：註冊多個相似域名（如 example.com、example.net、example.tw）並指向主網站。國際化：不同國家的域名指向對應的本地化網站。服務整合：將子域名指向第三方服務，如 shop.example.com 指向電商平台。
+
+CNAME 配置範例：
+```
+www.example.tw.     IN    CNAME    www.example.com.
+shop.example.com.   IN    CNAME    mystore.shopify.com.
+docs.example.com.   IN    CNAME    example.github.io.
+```
+
+域名轉址：
+除了 CNAME，還可以使用 HTTP 301/302 重定向。URL 轉址在 Web 伺服器層級處理，可以保留路徑和參數。DNS 層級的 CNAME 更底層，適合將整個子域名委派給其他服務。
+
+管理考量：
+註冊多個域名需要額外成本和管理工作。確保所有域名都正確續費，避免過期被搶註。考慮 SEO 影響，搜尋引擎可能將多個域名視為重複內容。使用規範標籤（Canonical Tag）指定主要版本。監控所有域名的 SSL 憑證有效期。
+
+安全性：
+防止域名劫持，使用域名鎖定功能。啟用雙因素認證保護域名註冊商帳號。定期檢查 DNS 記錄，確保沒有未授權的變更。考慮使用 DNSSEC 增強安全性。

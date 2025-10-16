@@ -1,0 +1,22 @@
+CNAME 記錄
+
+CNAME 記錄（Canonical Name Record，別名記錄）用於將一個域名指向另一個域名，建立域名別名。CNAME 記錄簡化了 DNS 管理，當目標伺服器 IP 變更時，只需更新一處記錄。
+
+記錄格式：
+```
+www.example.com.    3600    IN    CNAME    example.com.
+blog.example.com.   3600    IN    CNAME    hosting.example.net.
+```
+www.example.com 是別名，example.com 是正規名稱（Canonical Name）。
+
+工作原理：
+當 DNS 查詢 www.example.com 時，伺服器返回 CNAME 記錄指向 example.com。客戶端或解析器接著查詢 example.com 的 A 或 AAAA 記錄，獲得實際 IP 位址。這個過程稱為 CNAME 鏈（CNAME Chain）。
+
+實際應用範例：
+將 www.example.com 指向 example.com，統一使用根域名。將子域名指向 CDN 服務，如 cdn.example.com CNAME cdn.cloudflare.net。將多個域名指向同一個伺服器，簡化管理。
+
+使用限制：
+CNAME 記錄不能與其他記錄類型共存於同一個名稱。例如，如果 example.com 有 CNAME 記錄，就不能有 A、MX 或 TXT 記錄。根域名（如 example.com）通常不使用 CNAME，因為需要 SOA 和 NS 記錄。CNAME 鏈不應過長，建議不超過一層，避免增加查詢延遲。
+
+ALIAS 記錄：
+某些 DNS 服務提供 ALIAS 或 ANAME 記錄，功能類似 CNAME 但可以用於根域名，解決 CNAME 的限制。

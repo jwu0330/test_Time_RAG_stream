@@ -214,7 +214,7 @@ ls -lh data/docs/
 
 # 檢查情境文件
 ls -lh data/scenarios/
-# 應該有: scenarios_24.json
+# 應該有: scenarios_12.json
 
 # 檢查本體論
 ls -lh data/ontology/
@@ -375,7 +375,7 @@ open web/index.html
 
 - **編輯教材**: `data/docs/`
 - **調整配置**: `config.py`
-- **自定義情境**: `data/scenarios/scenarios_24.json`
+- **自定義情境**: `data/scenarios/scenarios_12.json`
 
 ---
 

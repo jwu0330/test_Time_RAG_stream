@@ -29,10 +29,16 @@ class RAGRetriever:
         Returns:
             相關文件列表，包含 doc_id, content, score
         """
+        import time
+        
         # 生成查詢向量
         query_embedding = await self.vector_store.create_embedding(query)
         
+        # 獲取實際的 API 調用時間
+        embedding_time = getattr(self.vector_store, '_last_embedding_time', 0)
+        
         # 計算所有文件的相似度
+        t3 = time.perf_counter()
         similarities = []
         for doc_id, doc_data in self.vector_store.get_all_documents().items():
             doc_embedding = doc_data["embedding"]
@@ -47,6 +53,16 @@ class RAGRetriever:
         
         # 排序並返回 top_k
         similarities.sort(key=lambda x: x["score"], reverse=True)
+        t4 = time.perf_counter()
+        similarity_time = t4 - t3
+        
+        # 儲存計時信息（供外部讀取）
+        self._last_timing = {
+            "embedding_api": embedding_time,
+            "similarity_calc": similarity_time,
+            "total": embedding_time + similarity_time
+        }
+        
         return similarities[:top_k]
     
     async def retrieve_with_threshold(

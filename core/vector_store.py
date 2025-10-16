@@ -8,23 +8,44 @@ import json
 from typing import List, Dict, Optional
 import numpy as np
 from openai import OpenAI
+from config import get_shared_client
 
 
 class VectorStore:
     """向量儲存管理類"""
     
-    def __init__(self, storage_path: str = "vectors.pkl", api_key: Optional[str] = None):
+    def __init__(self, storage_path: str = "vectors.pkl", api_key: Optional[str] = None, use_local: bool = True):
         """
         初始化向量儲存
         
         Args:
             storage_path: 向量儲存路徑
             api_key: OpenAI API Key
+            use_local: 是否使用本地模型（默認 True）
         """
         self.storage_path = storage_path
-        self.client = OpenAI(api_key=api_key) if api_key else OpenAI()
+        self.use_local = use_local
         self.vectors: Dict[str, dict] = {}
-        self.embedding_model = "text-embedding-3-small"
+        
+        if use_local:
+            # 使用本地模型（fastembed - 輕量級）
+            try:
+                from fastembed import TextEmbedding
+                print("📦 載入本地 Embedding 模型 (fastembed, ~30MB)...")
+                # 使用最小的模型
+                self.local_model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
+                self.embedding_model = "BAAI/bge-small-en-v1.5 (本地)"
+                print("✅ 本地模型載入完成")
+            except Exception as e:
+                print(f"⚠️  本地模型載入失敗: {e}")
+                print("⚠️  切換到 OpenAI API")
+                self.use_local = False
+                self.client = get_shared_client(api_key)
+                self.embedding_model = "text-embedding-3-small"
+        else:
+            # 使用 OpenAI API
+            self.client = get_shared_client(api_key)
+            self.embedding_model = "text-embedding-3-small"
     
     async def create_embedding(self, text: str) -> List[float]:
         """
@@ -36,11 +57,28 @@ class VectorStore:
         Returns:
             向量列表
         """
-        response = self.client.embeddings.create(
-            model=self.embedding_model,
-            input=text
-        )
-        return response.data[0].embedding
+        import time
+        t_start = time.perf_counter()
+        
+        if self.use_local:
+            # 使用本地模型（fastembed）
+            embeddings = list(self.local_model.embed([text]))
+            result = embeddings[0].tolist()
+        else:
+            # 使用 OpenAI API
+            response = self.client.embeddings.create(
+                model=self.embedding_model,
+                input=text
+            )
+            result = response.data[0].embedding
+        
+        t_end = time.perf_counter()
+        api_time = t_end - t_start
+        
+        # 儲存最後一次調用時間
+        self._last_embedding_time = api_time
+        
+        return result
     
     async def add_document(self, doc_id: str, content: str, metadata: Optional[dict] = None):
         """
